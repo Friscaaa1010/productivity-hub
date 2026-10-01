@@ -5452,6 +5452,248 @@
     }
 
     /* -------------------------------------------------------------
+       TAB 4: STUDY ASSISTANT (SOMNI AI CHAT) LOGIC
+       ------------------------------------------------------------- */
+    function initStudyAssistant() {
+      const chatForm = document.getElementById('somni-chat-form');
+      const chatInput = document.getElementById('somni-chat-input');
+      const btnClearChat = document.getElementById('btn-clear-somni-chat');
+      const promptChips = document.querySelectorAll('#somni-prompt-chips .chat-prompt-pill');
+
+      // 1. Initial Render of Chat Stream
+      renderSomniChatStream();
+
+      // 2. Quick Prompt Chips click handler
+      promptChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const prompt = chip.dataset.prompt;
+          if (!prompt) return;
+          audio.playClick();
+          sendSomniMessage(prompt);
+        });
+      });
+
+      // 3. Chat form submission
+      if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const query = chatInput.value.trim();
+          if (!query) return;
+          chatInput.value = '';
+          sendSomniMessage(query);
+        });
+      }
+
+      // 4. Clear chat conversation
+      if (btnClearChat) {
+        btnClearChat.addEventListener('click', () => {
+          if (AppState.somniChatMessages.length <= 1 || confirm('Clear your study conversation with Somni?')) {
+            AppState.somniChatMessages = [
+              {
+                id: 'msg-' + Date.now(),
+                sender: 'somni',
+                text: "✨ Conversation cleared! Hi, I'm **Somni**—your dedicated study AI coach. What topic, concept, or study schedule would you like help with right now?",
+                time: getFormattedTime()
+              }
+            ];
+            saveSomniChat();
+            renderSomniChatStream();
+            audio.playClick();
+            showToast('Chat history cleared', '🧹');
+          }
+        });
+      }
+    }
+
+    function sendSomniMessage(text) {
+      // Add User Message
+      const userMsg = {
+        id: 'msg-' + Date.now(),
+        sender: 'user',
+        text: text,
+        time: getFormattedTime()
+      };
+      AppState.somniChatMessages.push(userMsg);
+      saveSomniChat();
+      renderSomniChatStream();
+      audio.playClick();
+
+      // Show Typing Indicator
+      const typingIndicator = document.getElementById('somni-typing');
+      if (typingIndicator) typingIndicator.classList.add('active');
+      scrollChatToBottom();
+
+      // AI Response with natural processing delay
+      const thinkTime = Math.min(800, Math.max(350, text.length * 8));
+      setTimeout(() => {
+        if (typingIndicator) typingIndicator.classList.remove('active');
+
+        const aiResponseText = generateSomniResponse(text);
+        const somniMsg = {
+          id: 'msg-' + Date.now(),
+          sender: 'somni',
+          text: aiResponseText,
+          time: getFormattedTime()
+        };
+
+        AppState.somniChatMessages.push(somniMsg);
+        saveSomniChat();
+        renderSomniChatStream();
+        audio.playSuccess();
+        scrollChatToBottom();
+      }, thinkTime);
+    }
+
+    function renderSomniChatStream() {
+      const chatStream = document.getElementById('somni-chat-stream');
+      if (!chatStream) return;
+
+      chatStream.innerHTML = AppState.somniChatMessages.map(msg => {
+        const isUser = msg.sender === 'user';
+        const formattedHtml = formatMarkdownText(msg.text);
+        return `
+          <div class="chat-bubble ${isUser ? 'user' : 'somni'}">
+            <div class="bubble-sender">${isUser ? 'You' : '✨ Somni'}</div>
+            <div class="bubble-text">${formattedHtml}</div>
+            <div class="bubble-time">${escapeHTML(msg.time || '')}</div>
+          </div>
+        `;
+      }).join('');
+
+      scrollChatToBottom();
+    }
+
+    function scrollChatToBottom() {
+      const chatStream = document.getElementById('somni-chat-stream');
+      if (chatStream) {
+        chatStream.scrollTop = chatStream.scrollHeight;
+      }
+    }
+
+    function getFormattedTime() {
+      const now = new Date();
+      return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function formatMarkdownText(rawText) {
+      let escaped = escapeHTML(rawText);
+      
+      // Bold **text**
+      escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Italic *text*
+      escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Inline Code `code`
+      escaped = escaped.replace(/`([^`]+)`/g, '<code style="background: rgba(0,0,0,0.06); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em;">$1</code>');
+      // Line breaks
+      escaped = escaped.replace(/\n/g, '<br>');
+      
+      return escaped;
+    }
+
+    function generateSomniResponse(query) {
+      const q = query.toLowerCase();
+
+      // 1. Feynman Technique
+      if (q.includes('feynman') || (q.includes('explain') && q.includes('simple')) || q.includes('understand')) {
+        return "🧠 **The Feynman Technique (4-Step Mastery):**\n\n" +
+          "1. **Choose the concept:** Write the title at the top of a blank page.\n" +
+          "2. **Explain it to a 10-year-old:** Use plain everyday language, zero jargon, and clear analogies.\n" +
+          "3. **Identify your knowledge gaps:** Wherever you get stuck or use vague terms, revisit your source material to master the underlying mechanism.\n" +
+          "4. **Refine & simplify:** Condense the explanation and create a memorable visual or story.\n\n" +
+          "💡 *Somni's Tip:* You can test your recall right now by flipping over to the **Cards** tab and practicing active flashcards!";
+      }
+
+      // 2. Study Schedule / Plan / 2-hour plan
+      if (q.includes('schedule') || q.includes('plan') || q.includes('2-hour') || q.includes('routine') || q.includes('timetable')) {
+        return "📅 **High-Focus 2-Hour Study Master Schedule:**\n\n" +
+          "• **00:00 - 00:25 (Block 1):** Heavy concept synthesis & hardest problem sets. *No phone or distractions.*\n" +
+          "• **00:25 - 00:30 (Break 1):** 5m Break! Stand up, stretch, drink water, or play our Dino game.\n" +
+          "• **00:30 - 00:55 (Block 2):** Active recall & self-quizzing on key formulas/definitions.\n" +
+          "• **00:55 - 01:05 (Longer Break):** 10m relaxing mental reset.\n" +
+          "• **01:05 - 01:30 (Block 3):** Practice questions & past exam problem breakdowns.\n" +
+          "• **01:30 - 01:35 (Break 3):** 5m deep breathing.\n" +
+          "• **01:35 - 02:00 (Block 4):** Summarize key takeaways & write your daily reflection in **My Journal**.\n\n" +
+          "🎯 *Ready to begin? Head to the **Focus** tab and start your 25m Pomodoro!*";
+      }
+
+      // 3. Procrastination / Motivation / Focus
+      if (q.includes('procrastinat') || q.includes('lazy') || q.includes('start') || q.includes('focus') || q.includes('motivat') || q.includes('tired')) {
+        return "⚡ **How to Overcome Procrastination Right Now:**\n\n" +
+          "• **The 2-Minute Gateway:** Commit to studying for *just 120 seconds*. The friction is in the start; once momentum kicks in, continuing is 80% easier.\n" +
+          "• **Shrink the Task:** Don't say *'I need to study Chapter 4'*; say *'I will read 1 page and highlight 2 definitions'*.\n" +
+          "• **Dopamine Friction:** Put your phone in another room or out of sight.\n" +
+          "• **The 5-Second Countdown:** Count *5-4-3-2-1* and physically sit at your desk before your brain invents an excuse.\n\n" +
+          "🔥 *You don't need motivation to start—action produces the motivation!* Pick 1 tiny task from your Due Tasks tab and check it off!";
+      }
+
+      // 4. Active Recall / Spaced Repetition / Flashcards
+      if (q.includes('recall') || q.includes('flashcard') || q.includes('memor') || q.includes('spaced') || q.includes('leitner')) {
+        return "🎯 **Active Recall & Spaced Repetition Strategies:**\n\n" +
+          "• **The Testing Effect:** Testing yourself retrieves information from memory, strengthening synaptic connections 300% more than re-reading.\n" +
+          "• **The Blurting Method:** Read a topic for 10 minutes, close the book, and quickly write down everything you remember on a blank paper. Then check what you missed!\n" +
+          "• **Optimal Spacing Intervals:** Review on **Day 1 → Day 3 → Day 7 → Day 14 → Day 30** to counteract the Ebbinghaus forgetting curve.\n" +
+          "• **Leitner System:** Cards you get wrong are reviewed daily; cards you master are moved to longer review intervals.\n\n" +
+          "✨ *Try it now:* In the **Cards** tab, generate a custom quiz for any subject and test your speed with the timer!";
+      }
+
+      // 5. Exam Anxiety / Stress / Mindset
+      if (q.includes('anxiety') || q.includes('stress') || q.includes('exam') || q.includes('test') || q.includes('nervous') || q.includes('calm') || q.includes('sleep')) {
+        return "🧘 **Exam Calm & Peak Performance Protocol:**\n\n" +
+          "• **Box Breathing (4-4-4-4):** Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat 4 times to immediately reset your sympathetic nervous system.\n" +
+          "• **Cognitive Reframing:** Reframe nervousness as *excitement*—both release adrenaline, but excitement primes focus instead of fear.\n" +
+          "• **Brain Dump on Exam Day:** Spend the first 2 minutes of the test writing down all formulas, dates, and mnemonics in the margin.\n" +
+          "• **Sleep Priority:** Sleep is when memory consolidation happens in the hippocampus. Never sacrifice sleep before an exam!\n\n" +
+          "🌟 *You have prepared for this. Trust your preparation and take it one question at a time!*";
+      }
+
+      // 6. JavaScript / Coding / Tech
+      if (q.includes('javascript') || q.includes('js') || q.includes('code') || q.includes('programming') || q.includes('react') || q.includes('html') || q.includes('css')) {
+        return "💻 **Somni's Code Study Guide:**\n\n" +
+          "• **Build to Understand:** Coding is a motor skill as much as a cognitive one. Write and break code rather than just watching tutorials.\n" +
+          "• **Core Pillars:** Ensure you have ironclad mastery over `Closures`, `Promises & Async/Await`, `Event Loop`, and `Array Methods` (`map`, `filter`, `reduce`).\n" +
+          "• **Rubber Duck Debugging:** Explain your code line-by-line out loud to find logical flaws.\n\n" +
+          "🚀 *Need practice? Check out the preloaded JavaScript questions in the **Cards** tab!*";
+      }
+
+      // 7. Biology / Science
+      if (q.includes('bio') || q.includes('science') || q.includes('dna') || q.includes('cell') || q.includes('chemistry') || q.includes('physics')) {
+        return "🧬 **Science & Biology Study Framework:**\n\n" +
+          "• **Trace the Mechanism:** Focus on *cause and effect* (e.g., how ATP synthase uses proton gradients to generate energy).\n" +
+          "• **Draw Diagrams from Memory:** Draw cell structures, metabolic pathways, or free-body diagrams without looking at notes.\n" +
+          "• **Etymology Clues:** Learn Latin/Greek roots (e.g., *endo* = inside, *exo* = outside, *lysis* = breaking down) to decode unfamiliar terms instantly.\n\n" +
+          "💡 *Generate a Biology flashcard quiz in the Cards tab to test your recall!*";
+      }
+
+      // 8. Math / Calculus
+      if (q.includes('math') || q.includes('calculus') || q.includes('algebra') || q.includes('integral') || q.includes('derivative')) {
+        return "📐 **Mathematics Problem-Solving Technique:**\n\n" +
+          "• **Principle over Procedure:** Don't memorize steps blindly; understand *why* a formula works geometrically or algebraically.\n" +
+          "• **Interleaved Practice:** Mix different problem types in one session rather than doing 20 identical derivatives in a row.\n" +
+          "• **Error Journaling:** Keep a log of every algebraic mistake you make and review it weekly in **My Journal**.\n\n" +
+          "✨ *Consistency creates mathematical intuition. Keep practicing!*";
+      }
+
+      // 9. History / Social Studies
+      if (q.includes('history') || q.includes('war') || q.includes('revolution') || q.includes('century')) {
+        return "🌍 **History & Humanities Study Blueprint:**\n\n" +
+          "• **Narrative Storyboarding:** Treat historical events as stories with motivations, conflicts, turning points, and aftermaths.\n" +
+          "• **Anchor Dates:** Memorize key milestone anchor years (e.g., 1215 Magna Carta, 1789 French Revolution, 1914 WWI, 1939 WWII, 1969 Moon Landing) and place other events relative to them.\n" +
+          "• **Cause & Effect Matrices:** Analyze the economic, political, and social catalysts for each historical transition.\n\n" +
+          "📜 *Record your historical synthesis in My Journal!*";
+      }
+
+      // 10. General / Custom Query Handler
+      const cleanTopic = escapeHTML(query.replace(/[?.,!]/g, ''));
+      return `✨ **Somni's Insight on "${cleanTopic}":**\n\n` +
+        `Here is a structured, high-yield study breakdown to help you master this:\n\n` +
+        `1. **Core Concept:** Break ${cleanTopic} down into its 3 fundamental building blocks. What is the overarching objective?\n` +
+        `2. **Active Retrieval:** Test your ability to define the core terms without checking external references.\n` +
+        `3. **Practical Application:** Connect this concept to a real-world project or example you care about.\n` +
+        `4. **Daily Compounding:** Spend 1 focused 25-minute Pomodoro session in the **Focus** tab on this today.\n\n` +
+        `Feel free to ask me to explain any specific sub-topic, generate a study timetable, or give you flashcard practice questions! 🌟`;
+    }
+
+    /* -------------------------------------------------------------
        AUDIO & SOUND TOGGLE
        ------------------------------------------------------------- */
     function initSoundControls() {
