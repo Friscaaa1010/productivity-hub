@@ -1,0 +1,5488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202A44">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Productivity Hub - All-in-one mobile workspace for tasks, focus timer, flashcards, and journaling.">
+  <title>Productivity Hub</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* -------------------------------------------------------------
+       DESIGN SYSTEM & CSS VARIABLES
+       ------------------------------------------------------------- */
+    :root {
+      --primary: #202A44;
+      --primary-dark: #141c2e;
+      --primary-light: #2c3a5d;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-teal: #14b8a6;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-emerald: #10b981;
+      
+      --bg-desktop: #f1f5f9;
+      --bg-mobile: #f8fafc;
+      --card-bg: #ffffff;
+      --card-subtle: #f8fafc;
+      --card-border: #e2e8f0;
+      
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --text-inverse: #ffffff;
+
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+      --shadow-phone: 0 25px 50px -12px rgba(32, 42, 68, 0.25);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+
+      --bottom-bar-height: 72px;
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    input, textarea, select {
+      user-select: auto;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-desktop);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin: 0;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE SMARTPHONE CONTAINER
+       ------------------------------------------------------------- */
+    .app-viewport {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: var(--bg-mobile);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-phone);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--bottom-bar-height) + var(--safe-bottom) + 12px);
+      transition: box-shadow 0.3s ease;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        background-color: var(--bg-mobile);
+      }
+      .app-viewport {
+        max-width: 100%;
+        box-shadow: none;
+      }
+    }
+
+    /* -------------------------------------------------------------
+       HEADER BAR
+       ------------------------------------------------------------- */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2954 100%);
+      color: var(--text-inverse);
+      padding: 24px 20px 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom-left-radius: var(--radius-xl);
+      border-bottom-right-radius: var(--radius-xl);
+      box-shadow: 0 4px 20px rgba(32, 42, 68, 0.2);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .header-date {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-header:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* -------------------------------------------------------------
+       TAB SCREENS SYSTEM
+       ------------------------------------------------------------- */
+    .screens-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+    }
+
+    .screen {
+      display: none;
+      padding: 18px 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .screen.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+      animation: fadeInScreen 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInScreen {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       CARDS & COMMON COMPONENTS
+       ------------------------------------------------------------- */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--card-border);
+      transition: all 0.2s ease;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: var(--bg-desktop);
+      color: var(--text-secondary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2954 100%);
+      color: var(--text-inverse);
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(32, 42, 68, 0.2);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      width: 100%;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      opacity: 0.92;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:active {
+      background: #e2e8f0;
+      transform: scale(0.97);
+    }
+
+    /* -------------------------------------------------------------
+       TAB 1: DUE TASKS
+       ------------------------------------------------------------- */
+    .progress-banner {
+      background: linear-gradient(135deg, #202A44 0%, #2c3e6b 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 6px 16px rgba(32, 42, 68, 0.18);
+    }
+
+    .progress-text h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .progress-text p {
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    .progress-circle-wrap {
+      position: relative;
+      width: 56px;
+      height: 56px;
+    }
+
+    .progress-svg {
+      width: 56px;
+      height: 56px;
+      transform: rotate(-90deg);
+    }
+
+    .progress-bg-circle {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.2);
+      stroke-width: 5;
+    }
+
+    .progress-val-circle {
+      fill: none;
+      stroke: #38bdf8;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 144.5;
+      stroke-dashoffset: 144.5;
+      transition: stroke-dashoffset 0.6s ease;
+    }
+
+    .progress-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    /* Quick Input Form Card */
+    .task-form-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .task-input-field {
+      flex: 1;
+      background: #f8fafc;
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .task-input-field:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(32, 42, 68, 0.08);
+    }
+
+    .btn-submit-task {
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2954 100%);
+      color: white;
+      border: none;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(32, 42, 68, 0.18);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-submit-task:active {
+      transform: scale(0.95);
+      opacity: 0.9;
+    }
+
+    /* Pill-shaped Priority Selectors */
+    .priority-selector-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .priority-selector-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 2px;
+    }
+
+    .priority-pills-group {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .priority-pill-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+
+    /* High Priority: Red #660000 */
+    .priority-pill-btn[data-priority="high"] {
+      border-color: rgba(102, 0, 0, 0.2);
+      color: #660000;
+      background: #fdf2f2;
+    }
+    .priority-pill-btn[data-priority="high"].active {
+      background: #660000;
+      border-color: #660000;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(102, 0, 0, 0.35);
+    }
+
+    /* Medium Priority: Yellow #e5e619 */
+    .priority-pill-btn[data-priority="medium"] {
+      border-color: rgba(229, 230, 25, 0.5);
+      color: #857e00;
+      background: #fefee8;
+    }
+    .priority-pill-btn[data-priority="medium"].active {
+      background: #e5e619;
+      border-color: #d1d210;
+      color: #1e293b;
+      box-shadow: 0 2px 8px rgba(229, 230, 25, 0.35);
+    }
+
+    /* Low Priority: Blue #2f5bd1 */
+    .priority-pill-btn[data-priority="low"] {
+      border-color: rgba(47, 91, 209, 0.2);
+      color: #2f5bd1;
+      background: #eff4ff;
+    }
+    .priority-pill-btn[data-priority="low"].active {
+      background: #2f5bd1;
+      border-color: #2f5bd1;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(47, 91, 209, 0.35);
+    }
+
+    /* Filters Bar */
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .filter-chip {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 8px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(32, 42, 68, 0.2);
+    }
+
+    /* Touch Card List */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-item {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      min-height: 56px;
+    }
+
+    .task-item:active {
+      transform: scale(0.99);
+    }
+
+    /* Check Interactivity & Strikethrough */
+    .task-item.completed {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      opacity: 0.55;
+    }
+
+    /* Round Checkmark on Left Side */
+    .task-round-checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: #ffffff;
+    }
+
+    .task-round-checkbox.checked {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+      color: white;
+      transform: scale(1.06);
+    }
+
+    .task-round-checkbox svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0;
+      transform: scale(0.4);
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .task-round-checkbox.checked svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Task Center Content */
+    .task-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+      word-break: break-word;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Priority Badges in Cards */
+    .priority-badge {
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .priority-badge-high { 
+      background: #660000; 
+      color: #ffffff; 
+    }
+    .priority-badge-medium { 
+      background: #e5e619; 
+      color: #1e293b; 
+    }
+    .priority-badge-low { 
+      background: #2f5bd1; 
+      color: #ffffff; 
+    }
+
+    /* Delete Button on Right Side */
+    .btn-delete-task {
+      background: #f1f5f9;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-task:hover, .btn-delete-task:active {
+      background: #fee2e2;
+      color: #dc2626;
+      transform: scale(0.95);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      stroke: #cbd5e1;
+    }
+    .empty-state p {
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 2: LEARNING FOCUS TIMER
+       ------------------------------------------------------------- */
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+    }
+
+    /* Session Mode Selection Buttons */
+    .timer-modes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: var(--radius-full);
+      gap: 6px;
+      width: 100%;
+      margin-bottom: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .timer-mode-btn {
+      background: none;
+      border: none;
+      padding: 10px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .timer-mode-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 3px 10px rgba(32, 42, 68, 0.25);
+    }
+
+    /* Duration Adjuster Row */
+    .timer-settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      border: 1px dashed #cbd5e1;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .duration-stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-step-mini {
+      background: white;
+      border: 1px solid var(--card-border);
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-step-mini:active {
+      background: #e2e8f0;
+      transform: scale(0.92);
+    }
+
+    .step-val-text {
+      font-weight: 700;
+      min-width: 38px;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    /* Large Circular Clock Display */
+    .timer-circle-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 8px 0 20px 0;
+    }
+
+    .timer-svg {
+      width: 220px;
+      height: 220px;
+      transform: rotate(-90deg);
+    }
+
+    .timer-bg-circle {
+      fill: none;
+      stroke: #e2e8f0;
+      stroke-width: 8;
+    }
+
+    .timer-progress-circle {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 603;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.5s ease, stroke 0.3s;
+    }
+
+    .timer-display-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .timer-time {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 6px;
+    }
+
+    /* Thumb-Friendly Main Action Buttons */
+    .timer-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .btn-timer-action {
+      border: none;
+      padding: 12px 10px;
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-timer-action svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .btn-timer-action:active {
+      transform: scale(0.95);
+    }
+
+    .btn-timer-action.start {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-timer-action.pause {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-timer-action.reset {
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Dinosaur Jumping Game Card */
+    .dino-game-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dino-game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .dino-game-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dino-score-badge {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      background: #f1f5f9;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-family: monospace;
+    }
+
+    .dino-canvas-wrap {
+      position: relative;
+      width: 100%;
+      background: #fafafa;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      touch-action: manipulation;
+    }
+
+    #dino-canvas {
+      width: 100%;
+      height: 140px;
+      display: block;
+      cursor: pointer;
+    }
+
+    .dino-game-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .btn-jump-action {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(32, 42, 68, 0.2);
+    }
+
+    .btn-jump-action:active {
+      transform: scale(0.94);
+    }
+
+    /* Reflection Popup Modal */
+    .reflection-modal-card {
+      background: white;
+      width: 100%;
+      max-width: 400px;
+      border-radius: var(--radius-xl);
+      padding: 24px 20px;
+      text-align: center;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-overlay.active .reflection-modal-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .reflection-icon-celebrate {
+      width: 64px;
+      height: 64px;
+      background: #e0f2fe;
+      color: #0284c7;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 14px auto;
+      box-shadow: 0 8px 16px rgba(2, 132, 199, 0.18);
+    }
+
+    .reflection-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .reflection-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .reflection-actions-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Ambient Audio Card */
+    .ambient-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      width: 100%;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ambient-sounds-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .ambient-btn {
+      background: #f8fafc;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .ambient-btn.active {
+      background: #e0e7ff;
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(32, 42, 68, 0.15);
+    }
+
+    .ambient-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      border: 1px solid var(--card-border);
+    }
+
+    .stat-number {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-title {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 3: FLASHCARDS (AI SUBJECT ADDER & QUIZ)
+       ------------------------------------------------------------- */
+    /* Setup View / Subject Adder Card */
+    .ai-generator-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(32, 42, 68, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-generator-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    }
+
+    .ai-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+      color: #6366f1;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .ai-input-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .ai-input-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .ai-subject-input-box {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .ai-subject-input-box:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Quick Inspiration Subject Pills */
+    .subject-suggestions-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .subject-suggestions-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+      margin-bottom: 16px;
+    }
+    .subject-suggestions-scroll::-webkit-scrollbar { display: none; }
+
+    .suggestion-chip {
+      padding: 5px 11px;
+      border-radius: var(--radius-full);
+      font-size: 0.74rem;
+      font-weight: 600;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .suggestion-chip:active {
+      background: #e0e7ff;
+      color: #4f46e5;
+      transform: scale(0.96);
+    }
+
+    /* AI Config Options: Count & Timer */
+    .ai-options-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .ai-option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ai-option-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .ai-option-header span.val-highlight {
+      color: #6366f1;
+      font-weight: 800;
+    }
+
+    .option-pills-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .option-pills-row::-webkit-scrollbar { display: none; }
+
+    .config-pill-btn {
+      flex: 1;
+      min-width: 50px;
+      padding: 7px 10px;
+      border-radius: var(--radius-md);
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+
+    .config-pill-btn.active {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #ffffff;
+      border-color: #4f46e5;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-generate-ai {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      color: white;
+      border: none;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.94rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-generate-ai:active {
+      transform: scale(0.98);
+      opacity: 0.92;
+    }
+
+    /* AI Loading State */
+    .ai-loading-box {
+      display: none;
+      text-align: center;
+      padding: 24px 16px;
+      background: #f8fafc;
+      border-radius: var(--radius-lg);
+      border: 1.5px dashed #818cf8;
+      margin-bottom: 16px;
+    }
+
+    .ai-loading-box.active {
+      display: block;
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
+      70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+
+    /* Active Quiz & Question Timer Bar */
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .session-topic-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      border: 1px solid var(--card-border);
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .question-timer-card {
+      background: #ffffff;
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .timer-badge-pill {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #0284c7;
+      background: #e0f2fe;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-variant-numeric: tabular-nums;
+      transition: all 0.2s;
+    }
+
+    .timer-badge-pill.warning {
+      background: #fef3c7;
+      color: #b45309;
+      animation: timerPulse 0.8s infinite alternate;
+    }
+
+    .timer-badge-pill.danger {
+      background: #fee2e2;
+      color: #dc2626;
+      animation: timerPulse 0.4s infinite alternate;
+    }
+
+    @keyframes timerPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.06); }
+    }
+
+    .question-timer-track {
+      flex: 1;
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: var(--radius-full);
+      margin: 0 10px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+
+    .question-timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #6366f1);
+      width: 100%;
+      transition: width 0.2s linear, background-color 0.2s;
+    }
+
+    .question-timer-fill.danger {
+      background: #ef4444;
+    }
+
+    /* 3D Flashcard */
+    .flashcard-scene {
+      perspective: 1000px;
+      width: 100%;
+      height: 245px;
+      margin-bottom: 18px;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border-radius: var(--radius-xl);
+    }
+
+    .flashcard.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: var(--radius-xl);
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--card-border);
+    }
+
+    .flashcard-front {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      color: var(--text-main);
+    }
+
+    .flashcard-back {
+      background: linear-gradient(135deg, #202A44 0%, #151d30 100%);
+      color: white;
+      transform: rotateY(180deg);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-topic-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flashcard-back .card-topic-tag {
+      color: #38bdf8;
+    }
+
+    .card-body-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: center;
+      margin: auto 0;
+      word-break: break-word;
+    }
+
+    .card-tap-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .flashcard-back .card-tap-hint {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Flashcard Controls */
+    .flashcard-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn-review {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-mastered {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-review:active, .btn-mastered:active {
+      transform: scale(0.96);
+    }
+
+    .card-counter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-emerald));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Quiz Results Summary Card */
+    .quiz-complete-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 24px 18px;
+      text-align: center;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-md);
+      display: none;
+      animation: fadeInScreen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .quiz-complete-card.active {
+      display: block;
+    }
+
+    .complete-trophy-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .complete-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .complete-score-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .complete-actions-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 4: MY JOURNAL
+       ------------------------------------------------------------- */
+    .journal-prompt-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+    }
+
+    .journal-prompt-card::after {
+      content: '“';
+      position: absolute;
+      right: 10px;
+      bottom: -22px;
+      font-size: 5.5rem;
+      opacity: 0.12;
+      font-family: serif;
+      pointer-events: none;
+    }
+
+    .prompt-subtitle {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #38bdf8;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .prompt-quote {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.45;
+      font-style: italic;
+    }
+
+    .prompt-author {
+      font-size: 0.74rem;
+      color: #94a3b8;
+      margin-top: 6px;
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    /* Reflection Notes Form */
+    .journal-form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .journal-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .journal-field-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .journal-date-badge {
+      background: #f8fafc;
+      border: 1px solid var(--card-border);
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .subject-pills-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .subject-pills-scroll::-webkit-scrollbar { display: none; }
+
+    .subject-pill {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      border: 1.5px solid transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .subject-pill.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(32, 42, 68, 0.2);
+    }
+
+    .subject-custom-input {
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .subject-custom-input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+    }
+
+    .journal-textarea {
+      width: 100%;
+      min-height: 105px;
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      resize: vertical;
+      outline: none;
+      background: #f8fafc;
+      line-height: 1.5;
+      transition: all 0.2s;
+    }
+
+    .journal-textarea:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(32, 42, 68, 0.08);
+    }
+
+    .btn-save-journal {
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2954 100%);
+      color: white;
+      border: none;
+      padding: 13px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(32, 42, 68, 0.25);
+      transition: transform 0.15s, opacity 0.15s;
+      width: 100%;
+    }
+
+    .btn-save-journal:active {
+      transform: scale(0.98);
+      opacity: 0.92;
+    }
+
+    /* Journal History Feed & Cards */
+    .journal-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .journal-entry-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.15s ease;
+    }
+
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .entry-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .entry-subject-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .entry-date-badge {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .entry-notes-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .btn-delete-entry {
+      background: #f8fafc;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-entry:hover, .btn-delete-entry:active {
+      background: #fee2e2;
+      color: #dc2626;
+      transform: scale(0.95);
+    }
+
+    /* -------------------------------------------------------------
+       TAB 5: STUDY ASSISTANT (SOMNI AI CHAT)
+       ------------------------------------------------------------- */
+    .assistant-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 200px);
+      min-height: 480px;
+    }
+
+    .somni-hero-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 14px rgba(49, 46, 129, 0.25);
+    }
+
+    .somni-avatar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .somni-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .somni-info-name {
+      font-size: 0.94rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .somni-info-status {
+      font-size: 0.72rem;
+      color: #a5b4fc;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+    }
+
+    .status-dot-active {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 6px #4ade80;
+    }
+
+    .btn-clear-chat {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-clear-chat:active {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(0.95);
+    }
+
+    /* Message Stream Box */
+    .somni-messages-stream {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 2px 10px 2px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-bubble {
+      max-width: 90%;
+      padding: 11px 13px;
+      font-size: 0.86rem;
+      line-height: 1.48;
+      border-radius: var(--radius-lg);
+      word-break: break-word;
+      animation: fadeInScreen 0.2s ease forwards;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary) 0%, #1a2954 100%);
+      color: white;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 8px rgba(32, 42, 68, 0.15);
+    }
+
+    .chat-bubble.somni {
+      align-self: flex-start;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .somni-bubble-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #6366f1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .somni-highlight-card {
+      background: #f5f3ff;
+      border-left: 3px solid #6366f1;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      margin: 4px 0;
+      font-size: 0.82rem;
+      color: #3730a3;
+    }
+
+    /* Typing Indicator */
+    .somni-typing-indicator {
+      display: none;
+      align-self: flex-start;
+      background: white;
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      gap: 4px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .somni-typing-indicator.active {
+      display: flex;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: #818cf8;
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* Prompt Chips */
+    .chat-prompts-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px 0 6px 0;
+      scrollbar-width: none;
+    }
+    .chat-prompts-scroll::-webkit-scrollbar { display: none; }
+
+    .chat-prompt-pill {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .chat-prompt-pill:active {
+      background: #ede9fe;
+      color: #6366f1;
+      border-color: #c7d2fe;
+      transform: scale(0.96);
+    }
+
+    /* Chat Input Form */
+    .somni-input-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      background: white;
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius-full);
+      padding: 3px 5px 3px 12px;
+      box-shadow: var(--shadow-sm);
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .somni-input-form:focus-within {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .somni-chat-field {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: transparent;
+      color: var(--text-main);
+    }
+
+    .btn-send-somni {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-send-somni:active {
+      transform: scale(0.92);
+    }
+
+    /* -------------------------------------------------------------
+       BOTTOM FIXED NAVIGATION BAR (5 TABS)
+       ------------------------------------------------------------- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: calc(var(--bottom-bar-height) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(226, 232, 240, 0.8);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      z-index: 50;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      gap: 3px;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 0 2px;
+    }
+
+    .nav-tab-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      transition: transform 0.2s;
+    }
+
+    .nav-tab-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .nav-tab-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: color 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+    }
+
+    .nav-tab.active .nav-tab-icon {
+      transform: translateY(-2px);
+    }
+
+    .nav-tab.active .nav-tab-label {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .nav-tab::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      width: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius-full);
+      transition: width 0.25s ease;
+    }
+
+    .nav-tab.active::after {
+      width: 20px;
+    }
+
+    .nav-badge {
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      background: var(--accent-rose);
+      color: white;
+      font-size: 0.62rem;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      box-shadow: 0 2px 4px rgba(244, 63, 94, 0.4);
+    }
+
+    /* -------------------------------------------------------------
+       MODAL DIALOG
+       ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 430px;
+      border-top-left-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
+      padding: 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn-close-modal {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .form-input, .form-select {
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 120;
+      pointer-events: none;
+      width: 90%;
+      max-width: 380px;
+    }
+
+    .toast {
+      background: var(--primary);
+      color: white;
+      padding: 10px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 8px;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-16px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Smart Phone Wrapper / Viewport Container -->
+  <main class="app-viewport">
+    
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          Productivity Hub
+          <span class="brand-badge">Pro</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon-header" id="btn-sound-toggle" title="Sound Effects" aria-label="Toggle Audio">
+            <svg id="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="header-date" id="header-date-display">Today &bull; Loading...</div>
+    </header>
+
+    <!-- Content Screens Wrapper -->
+    <section class="screens-container">
+      
+      <!-- ==========================================
+           TAB 1: DUE TASKS
+           ========================================== -->
+      <section class="screen active" id="screen-tasks" aria-labelledby="tab-due-tasks">
+        <!-- Progress Card -->
+        <div class="progress-banner">
+          <div class="progress-text">
+            <h3 id="task-greeting">Daily Progress</h3>
+            <p id="task-summary-text">0 of 0 tasks completed</p>
+          </div>
+          <div class="progress-circle-wrap">
+            <svg class="progress-svg" viewBox="0 0 56 56">
+              <circle class="progress-bg-circle" cx="28" cy="28" r="23"></circle>
+              <circle class="progress-val-circle" id="task-progress-ring" cx="28" cy="28" r="23"></circle>
+            </svg>
+            <div class="progress-number" id="task-progress-pct">0%</div>
+          </div>
+        </div>
+
+        <!-- Quick Input Form with Priority Selector Buttons -->
+        <form class="task-form-card" id="task-input-form" onsubmit="return false;">
+          <div class="task-input-row">
+            <input type="text" class="task-input-field" id="task-quick-input" placeholder="What needs to be done?" maxlength="100" autocomplete="off" required>
+            <button class="btn-submit-task" type="submit" id="btn-quick-add-task" title="Add Task" aria-label="Add Task">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add
+            </button>
+          </div>
+          <div class="priority-selector-row">
+            <span class="priority-selector-label">Priority:</span>
+            <div class="priority-pills-group" id="priority-selector-group">
+              <button type="button" class="priority-pill-btn" data-priority="high" aria-label="High Priority">
+                ● High
+              </button>
+              <button type="button" class="priority-pill-btn active" data-priority="medium" aria-label="Medium Priority">
+                ● Medium
+              </button>
+              <button type="button" class="priority-pill-btn" data-priority="low" aria-label="Low Priority">
+                ● Low
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Category Filter Tabs: All, Due, Completed -->
+        <div class="filter-scroll" id="task-filters">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="due">Due</button>
+          <button class="filter-chip" data-filter="completed">Completed</button>
+        </div>
+
+        <!-- Touch Card List -->
+        <div class="task-list" id="task-items-container">
+          <!-- Dynamic Touch Cards inject here -->
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 2: LEARNING FOCUS (TIMER)
+           ========================================== -->
+      <section class="screen" id="screen-focus" aria-labelledby="tab-learning-focus">
+        <div class="card timer-container">
+          <!-- Session Mode Selector Buttons -->
+          <div class="timer-modes" id="timer-mode-selectors">
+            <button class="timer-mode-btn active" id="btn-mode-study" data-mode="study">
+              🎯 <span id="label-mode-study">25 Minute Focus Study</span>
+            </button>
+            <button class="timer-mode-btn" id="btn-mode-break" data-mode="break">
+              ☕ <span id="label-mode-break">5 Minute Relax Break</span>
+            </button>
+          </div>
+
+          <!-- Time Customization Row -->
+          <div class="timer-settings-row">
+            <span>⏱️ Adjust Duration:</span>
+            <div class="duration-stepper">
+              <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-muted);" id="stepper-mode-name">Study:</span>
+              <button class="btn-step-mini" id="btn-dec-time" aria-label="Decrease minutes">−</button>
+              <span class="step-val-text" id="stepper-mins-display">25m</span>
+              <button class="btn-step-mini" id="btn-inc-time" aria-label="Increase minutes">+</button>
+            </div>
+          </div>
+
+          <!-- Large Circular Clock Display (Standard Format 25:00) -->
+          <div class="timer-circle-wrapper">
+            <svg class="timer-svg" viewBox="0 0 220 220">
+              <circle class="timer-bg-circle" cx="110" cy="110" r="96"></circle>
+              <circle class="timer-progress-circle" id="timer-ring" cx="110" cy="110" r="96"></circle>
+            </svg>
+            <div class="timer-display-inner">
+              <div class="timer-time" id="timer-display">25:00</div>
+              <div class="timer-label" id="timer-mode-label">Focus Study</div>
+            </div>
+          </div>
+
+          <!-- Thumb-Friendly Large Main Action Buttons: Start, Pause, Reset -->
+          <div class="timer-controls-grid">
+            <button class="btn-timer-action reset" id="btn-timer-action-reset" title="Reset Timer" aria-label="Reset Timer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+            
+            <button class="btn-timer-action start" id="btn-timer-action-start" title="Start Timer" aria-label="Start Timer">
+              <svg id="timer-main-play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="6 3 20 12 6 21 6 3"></polygon>
+              </svg>
+              <span>Start</span>
+            </button>
+
+            <button class="btn-timer-action pause" id="btn-timer-action-pause" title="Pause Timer" aria-label="Pause Timer">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+              </svg>
+              <span>Pause</span>
+            </button>
+          </div>
+
+          <!-- Focus Stats -->
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-number" id="stat-focus-sessions">0</div>
+              <div class="stat-title">Sessions</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number" id="stat-focus-minutes">0m</div>
+              <div class="stat-title">Focus Time</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number" id="stat-focus-streak">🔥 1</div>
+              <div class="stat-title">Day Streak</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Break Time Game: Dinosaur Jumping Game (Only shown during Break Time) -->
+        <div class="dino-game-card" id="dino-game-section" style="display: none;">
+          <div class="dino-game-header">
+            <div class="dino-game-title">
+              <span>🦕</span> Break Time Dino Jump
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="dino-score-badge" id="dino-score-display">Score: 000</span>
+              <span class="dino-score-badge" id="dino-high-display" style="background: #fef3c7; color: #b45309;">HI: 000</span>
+            </div>
+          </div>
+
+          <!-- Canvas Game Area -->
+          <div class="dino-canvas-wrap" id="dino-canvas-wrap">
+            <canvas id="dino-canvas" width="380" height="140"></canvas>
+          </div>
+
+          <div class="dino-game-footer">
+            <span>Tap screen / canvas or press button to jump</span>
+            <button class="btn-jump-action" id="btn-dino-jump" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+              Jump!
+            </button>
+          </div>
+        </div>
+
+        <!-- Ambient Sound Generator -->
+        <div class="ambient-card">
+          <div class="card-title">
+            <div class="card-title-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+              Ambient Focus Audio
+            </div>
+            <span class="badge-pill" id="ambient-status">Off</span>
+          </div>
+          <div class="ambient-sounds-grid">
+            <button class="ambient-btn" data-sound="rain">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="16" y1="13" x2="16" y2="21"></line>
+                <line x1="8" y1="13" x2="8" y2="21"></line>
+                <line x1="12" y1="15" x2="12" y2="23"></line>
+                <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path>
+              </svg>
+              Rain
+            </button>
+            <button class="ambient-btn" data-sound="waves">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+              </svg>
+              Waves
+            </button>
+            <button class="ambient-btn" data-sound="white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+              </svg>
+              White Noise
+            </button>
+            <button class="ambient-btn" data-sound="binaural">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+              </svg>
+              432Hz Tone
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 3: FLASHCARDS (SOMNI SUBJECT ADDER & QUIZ)
+           ========================================== -->
+      <section class="screen" id="screen-flashcards" aria-labelledby="tab-flashcards">
+        
+        <!-- 1. SETUP VIEW: SOMNI SUBJECT ADDER & CONFIGURATION -->
+        <div id="flashcard-setup-view">
+          <div class="ai-generator-card">
+            <div class="ai-header-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+              </svg>
+              Somni Flashcard Generator
+            </div>
+            <h3 class="ai-input-title">What are you studying today?</h3>
+            <p class="ai-input-subtitle">Enter your project or subject topic. Somni will analyze the material and generate challenging active-recall flashcards with a timer.</p>
+
+            <!-- Subject / Project Input Box -->
+            <input 
+              type="text" 
+              class="ai-subject-input-box" 
+              id="ai-subject-input" 
+              placeholder="e.g. JavaScript Closures, Cell Biology, World War II, Microeconomics..." 
+              maxlength="100"
+              autocomplete="off"
+            >
+
+            <!-- Quick Subject Suggestions -->
+            <div class="subject-suggestions-label">Quick Ideas:</div>
+            <div class="subject-suggestions-scroll" id="ai-subject-suggestions">
+              <button type="button" class="suggestion-chip" data-topic="🧠 Productivity & Habits">⚡ Productivity</button>
+              <button type="button" class="suggestion-chip" data-topic="💻 JavaScript Essentials">💻 JavaScript</button>
+              <button type="button" class="suggestion-chip" data-topic="🧬 Cell Biology & DNA">🧬 Biology</button>
+              <button type="button" class="suggestion-chip" data-topic="📐 Calculus & Algebra">📐 Mathematics</button>
+              <button type="button" class="suggestion-chip" data-topic="🌍 World War II History">🌍 World History</button>
+              <button type="button" class="suggestion-chip" data-topic="🤖 Machine Learning Basics">🤖 AI & ML</button>
+              <button type="button" class="suggestion-chip" data-topic="📈 Supply and Demand">📈 Economics</button>
+              <button type="button" class="suggestion-chip" data-topic="🎨 UX Design Principles">🎨 UX Design</button>
+            </div>
+
+            <!-- Somni Configuration Options: Question Count & Timer per Question -->
+            <div class="ai-options-section">
+              <!-- Option A: How many questions -->
+              <div class="ai-option-group">
+                <div class="ai-option-header">
+                  <span>Number of Questions:</span>
+                  <span class="val-highlight" id="lbl-question-count">5 Questions</span>
+                </div>
+                <div class="option-pills-row" id="count-selector-pills">
+                  <button type="button" class="config-pill-btn" data-count="3">3 Cards</button>
+                  <button type="button" class="config-pill-btn active" data-count="5">5 Cards</button>
+                  <button type="button" class="config-pill-btn" data-count="10">10 Cards</button>
+                  <button type="button" class="config-pill-btn" data-count="15">15 Cards</button>
+                </div>
+              </div>
+
+              <!-- Option B: Time given per question -->
+              <div class="ai-option-group">
+                <div class="ai-option-header">
+                  <span>Timer per Question:</span>
+                  <span class="val-highlight" id="lbl-timer-per-question">15 Seconds</span>
+                </div>
+                <div class="option-pills-row" id="timer-selector-pills">
+                  <button type="button" class="config-pill-btn" data-time="10">10s</button>
+                  <button type="button" class="config-pill-btn active" data-time="15">15s</button>
+                  <button type="button" class="config-pill-btn" data-time="30">30s</button>
+                  <button type="button" class="config-pill-btn" data-time="45">45s</button>
+                  <button type="button" class="config-pill-btn" data-time="60">60s</button>
+                  <button type="button" class="config-pill-btn" data-time="0">∞ None</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button type="button" class="btn-generate-ai" id="btn-start-ai-quiz">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+              </svg>
+              Generate with Somni & Start Quiz
+            </button>
+          </div>
+
+          <!-- Loading Shimmer / Generating Box -->
+          <div class="ai-loading-box" id="ai-generating-loader">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">✨🤖✨</div>
+            <div style="font-weight: 800; font-size: 1rem; color: var(--primary); margin-bottom: 4px;" id="ai-loading-status-text">Somni is analyzing subject material...</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Generating high-yield active-recall question cards and setting timer.</div>
+          </div>
+        </div>
+
+        <!-- 2. ACTIVE QUIZ / FLASHCARDS SESSION VIEW -->
+        <div id="flashcard-session-view" style="display: none;">
+          <div class="deck-header">
+            <div class="session-topic-badge" id="session-topic-display" title="Current Topic">
+              <span>✨</span>
+              <span id="session-topic-title">Productivity Hacks</span>
+            </div>
+            <button class="btn-secondary" id="btn-change-subject" style="padding: 6px 12px; font-size: 0.78rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              New Subject
+            </button>
+          </div>
+
+          <!-- Question Countdown Timer Bar -->
+          <div class="question-timer-card" id="question-timer-container">
+            <div class="timer-badge-pill" id="question-timer-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span id="question-timer-text">15s</span>
+            </div>
+            <div class="question-timer-track">
+              <div class="question-timer-fill" id="question-timer-bar"></div>
+            </div>
+            <button class="btn-step-mini" id="btn-pause-question-timer" title="Pause Question Timer" aria-label="Pause timer">
+              ⏸
+            </button>
+          </div>
+
+          <!-- Card Progress Counter & Fill Track -->
+          <div class="card-counter-bar">
+            <span id="flashcard-counter-text">Card 1 of 5</span>
+            <span id="flashcard-mastery-text">Mastery: 0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="flashcard-progress-bar"></div>
+          </div>
+
+          <!-- 3D Interactive Card -->
+          <div class="flashcard-scene" id="flashcard-container">
+            <div class="flashcard" id="active-flashcard" role="button" tabindex="0" aria-label="Flip flashcard">
+              <!-- Front Face -->
+              <div class="flashcard-face flashcard-front">
+                <div class="card-topic-tag">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span id="card-front-tag">Question</span>
+                </div>
+                <div class="card-body-text" id="card-front-text">
+                  What is the Pomodoro Technique?
+                </div>
+                <div class="card-tap-hint">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                  </svg>
+                  Tap to reveal answer
+                </div>
+              </div>
+
+              <!-- Back Face -->
+              <div class="flashcard-face flashcard-back">
+                <div class="card-topic-tag">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <span id="card-back-tag">Explanation</span>
+                </div>
+                <div class="card-body-text" id="card-back-text">
+                  A time management method using 25-minute intervals of focused work followed by 5-minute short breaks.
+                </div>
+                <div class="card-tap-hint">
+                  Tap to flip back
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade Card Actions: Needs Review & Got It! -->
+          <div class="flashcard-actions">
+            <button class="btn-review" id="btn-card-review">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Needs Review
+            </button>
+            <button class="btn-mastered" id="btn-card-mastered">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Got It!
+            </button>
+          </div>
+
+          <!-- Deck Secondary Controls -->
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btn-shuffle-cards" style="flex: 1;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+              </svg>
+              Shuffle
+            </button>
+            <button class="btn-secondary" id="btn-restart-deck" style="flex: 1;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              Restart
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. QUIZ COMPLETION / RESULTS VIEW -->
+        <div class="quiz-complete-card" id="flashcard-results-view">
+          <div class="complete-trophy-icon">🏆</div>
+          <h3 class="complete-title">Somni Subject Quiz Complete!</h3>
+          <p class="complete-score-text" id="quiz-results-score-text">You mastered 4 out of 5 cards (80%)</p>
+
+          <div class="complete-actions-grid">
+            <button class="btn-primary" id="btn-results-retry">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              Practice This Deck Again
+            </button>
+            <button class="btn-secondary" id="btn-results-new-subject" style="border: 1.5px solid var(--primary); color: var(--primary); font-weight: 700;">
+              ✨ Study Another Subject
+            </button>
+            <button class="btn-secondary" id="btn-results-to-journal">
+              ✍️ Record Reflection in Journal
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB 4: STUDY ASSISTANT (SOMNI AI CHAT)
+           ========================================== -->
+      <section class="screen" id="screen-assistant" aria-labelledby="tab-study-assistant">
+        <div class="assistant-container">
+          <!-- Somni Header Card -->
+          <div class="somni-hero-card">
+            <div class="somni-avatar-wrap">
+              <div class="somni-avatar-circle">✨</div>
+              <div>
+                <div class="somni-info-name">
+                  Somni
+                  <span class="brand-badge" style="background: rgba(255,255,255,0.25);">AI Coach</span>
+                </div>
+                <div class="somni-info-status">
+                  <span class="status-dot-active"></span>
+                  Online • Ready to help you study
+                </div>
+              </div>
+            </div>
+            <button class="btn-clear-chat" id="btn-clear-somni-chat" title="Clear conversation" aria-label="Clear chat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Clear
+            </button>
+          </div>
+
+          <!-- Quick Starter Prompt Pills -->
+          <div class="chat-prompts-scroll" id="somni-prompt-chips">
+            <button type="button" class="chat-prompt-pill" data-prompt="🧠 How can I use the Feynman technique to master difficult topics?">💡 Feynman Technique</button>
+            <button type="button" class="chat-prompt-pill" data-prompt="📅 Build me a high-focus 2-hour study schedule using Pomodoro">📅 2-Hour Study Plan</button>
+            <button type="button" class="chat-prompt-pill" data-prompt="⚡ How do I stop procrastinating and start studying right now?">⚡ Beat Procrastination</button>
+            <button type="button" class="chat-prompt-pill" data-prompt="🎯 What are the best active recall strategies for long-term memory?">🎯 Active Recall Tips</button>
+            <button type="button" class="chat-prompt-pill" data-prompt="🧘 How to stay calm and focused before an important exam?">🧘 Exam Calm & Focus</button>
+          </div>
+
+          <!-- Message History Stream -->
+          <div class="somni-messages-stream" id="somni-chat-stream">
+            <!-- Dynamic chat messages inject here -->
+          </div>
+
+          <!-- Typing Indicator -->
+          <div class="somni-typing-indicator" id="somni-typing">
+            <span style="font-size: 0.72rem; font-weight: 700; color: #6366f1; margin-right: 4px;">Somni is thinking</span>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+
+          <!-- Chat Input Form -->
+          <form class="somni-input-form" id="somni-chat-form" onsubmit="return false;">
+            <input 
+              type="text" 
+              class="somni-chat-field" 
+              id="somni-chat-input" 
+              placeholder="Ask Somni anything about studying, topics, or plans..." 
+              autocomplete="off"
+              required
+            >
+            <button type="submit" class="btn-send-somni" id="btn-send-somni" title="Send message" aria-label="Send message">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 5: MY JOURNAL
+           ========================================== -->
+      <section class="screen" id="screen-journal" aria-labelledby="tab-my-journal">
+        <!-- Daily Inspiration Quote (Changes every 24 hours) -->
+        <div class="journal-prompt-card" id="journal-quote-card">
+          <div class="prompt-subtitle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Daily Inspiration
+          </div>
+          <div class="prompt-quote" id="journal-quote-display">
+            "Small daily improvements over time lead to stunning results."
+          </div>
+          <div class="prompt-author" id="journal-quote-author">— Robin Sharma</div>
+        </div>
+
+        <!-- Reflection Notes Form -->
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+              Daily Reflection Note
+            </div>
+            <span class="badge-pill">New Entry</span>
+          </div>
+
+          <!-- Note Form -->
+          <form class="journal-form-grid" id="journal-form">
+            <!-- Automatically input today's date -->
+            <div class="journal-field-group">
+              <label class="journal-field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Today's Date:
+              </label>
+              <div class="journal-date-badge" id="journal-auto-date">
+                Today &bull; Loading...
+              </div>
+            </div>
+
+            <!-- Newly studied subject selection -->
+            <div class="journal-field-group">
+              <label class="journal-field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                Studied Subject:
+              </label>
+              <div class="subject-pills-scroll" id="subject-pills-container">
+                <button type="button" class="subject-pill active" data-subject="💻 Computer Science">💻 Computer Science</button>
+                <button type="button" class="subject-pill" data-subject="📐 Mathematics">📐 Mathematics</button>
+                <button type="button" class="subject-pill" data-subject="🧬 Science">🧬 Science</button>
+                <button type="button" class="subject-pill" data-subject="📚 History">📚 History</button>
+                <button type="button" class="subject-pill" data-subject="🌐 Language">🌐 Language</button>
+                <button type="button" class="subject-pill" data-subject="✨ Custom">✨ Custom</button>
+              </div>
+              <input type="text" class="subject-custom-input" id="subject-custom-input" placeholder="Type custom subject name..." style="display: none; margin-top: 4px;">
+            </div>
+
+            <!-- Notes on understanding the material -->
+            <div class="journal-field-group">
+              <label class="journal-field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Material Understanding & Reflections:
+              </label>
+              <textarea 
+                class="journal-textarea" 
+                id="journal-input" 
+                placeholder="What material did you study today? Key concepts understood, breakthroughs, or areas to review next..." 
+                required
+              ></textarea>
+            </div>
+
+            <!-- Responsive Easy-to-press Action Button -->
+            <button type="submit" class="btn-save-journal" id="btn-save-journal-entry">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save Today's Note
+            </button>
+          </form>
+        </div>
+
+        <!-- Note History Section -->
+        <div class="card-title" style="margin-top: 22px; padding: 0 4px;">
+          <div class="card-title-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            Note History
+          </div>
+          <span class="badge-pill" id="journal-count-badge">0 notes</span>
+        </div>
+
+        <div class="journal-feed" id="journal-entries-list">
+          <!-- Dynamic Journal Note History Cards inject here -->
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ==========================================
+         BOTTOM NAVIGATION BAR (FIXED 5 TABS)
+         ========================================== -->
+    <nav class="bottom-nav" aria-label="Main Navigation">
+      <!-- Tab 1: Due Tasks -->
+      <button class="nav-tab active" data-tab="screen-tasks" id="tab-due-tasks" aria-label="Due Tasks">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span class="nav-badge" id="nav-task-badge" style="display: none;">0</span>
+        </div>
+        <span class="nav-tab-label">Tasks</span>
+      </button>
+
+      <!-- Tab 2: Learning Focus -->
+      <button class="nav-tab" data-tab="screen-focus" id="tab-learning-focus" aria-label="Learning Focus">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <span class="nav-tab-label">Focus</span>
+      </button>
+
+      <!-- Tab 3: Flashcards -->
+      <button class="nav-tab" data-tab="screen-flashcards" id="tab-flashcards" aria-label="Flashcards">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+        </div>
+        <span class="nav-tab-label">Cards</span>
+      </button>
+
+      <!-- Tab 4: Study Assistant (Somni AI) -->
+      <button class="nav-tab" data-tab="screen-assistant" id="tab-study-assistant" aria-label="Study Assistant">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+            <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+            <line x1="9" y1="13" x2="9.01" y2="13"></line>
+            <line x1="15" y1="13" x2="15.01" y2="13"></line>
+            <line x1="9" y1="17" x2="15" y2="17"></line>
+          </svg>
+        </div>
+        <span class="nav-tab-label">Somni</span>
+      </button>
+
+      <!-- Tab 5: My Journal -->
+      <button class="nav-tab" data-tab="screen-journal" id="tab-my-journal" aria-label="My Journal">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="8" y1="7" x2="16" y2="7"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <span class="nav-tab-label">Journal</span>
+      </button>
+    </nav>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL: ADD NEW FLASHCARD
+       ========================================== -->
+  <div class="modal-overlay" id="modal-add-card">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Flashcard</h3>
+        <button class="btn-close-modal" id="btn-close-card-modal">✕</button>
+      </div>
+      <form id="form-new-flashcard">
+        <div class="form-group">
+          <label class="form-label" for="new-card-front">Front (Question / Prompt)</label>
+          <input type="text" class="form-input" id="new-card-front" placeholder="e.g. What is Closure in JS?" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-card-back">Back (Answer / Explanation)</label>
+          <textarea class="form-input" id="new-card-back" style="min-height: 80px;" placeholder="e.g. A function bundled with its lexical environment..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-card-topic">Category Tag</label>
+          <input type="text" class="form-input" id="new-card-topic" placeholder="e.g. JavaScript, Algorithms, Habits">
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top: 8px;">
+          Add to Custom Deck
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: FOCUS REFLECTION PROMPT
+       ========================================== -->
+  <div class="modal-overlay" id="modal-reflection">
+    <div class="reflection-modal-card">
+      <div class="reflection-icon-celebrate">🎉</div>
+      <h3 class="reflection-title">Focus Session Complete!</h3>
+      <p class="reflection-desc">
+        Fantastic work! Record your learning evaluation, key takeaways, and daily reflections in <strong>My Journal</strong> while it's fresh.
+      </p>
+      <div class="reflection-actions-stack">
+        <button class="btn-primary" id="btn-go-to-journal" type="button" style="padding: 12px;">
+          ✍️ Go to Journal
+        </button>
+        <button class="btn-secondary" id="btn-start-break-game" type="button" style="padding: 10px; width: 100%; border: 1.5px solid var(--primary); color: var(--primary); font-weight: 700;">
+          🦕 Play Break Dino Game
+        </button>
+        <button class="btn-secondary" id="btn-dismiss-reflection" type="button" style="padding: 8px; width: 100%; background: transparent; border: none; color: var(--text-muted);">
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ==========================================
+       PURE JAVASCRIPT APPLICATION LOGIC
+       ========================================== -->
+  <script>
+    /* -------------------------------------------------------------
+       AUDIO SYNTHESIZER (WEB AUDIO API - ZERO DEPENDENCIES)
+       ------------------------------------------------------------- */
+    class AudioSystem {
+      constructor() {
+        this.ctx = null;
+        this.soundEnabled = true;
+        this.ambientNode = null;
+        this.ambientGain = null;
+        this.currentAmbient = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playClick() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.04);
+        
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      }
+
+      playSuccess() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          
+          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.25);
+        });
+      }
+
+      playAlarmBeep() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        // 4 distinct repeating alarm pulses
+        [0, 0.16, 0.32, 0.48].forEach((timeOffset, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(idx % 2 === 0 ? 987.77 : 1174.66, now + timeOffset);
+          
+          gain.gain.setValueAtTime(0.2, now + timeOffset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + timeOffset + 0.1);
+          
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + timeOffset);
+          osc.stop(now + timeOffset + 0.1);
+        });
+      }
+
+      playJumpSound() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(560, now + 0.07);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      }
+
+      playTimerBell() {
+        this.playAlarmBeep();
+      }
+
+      startAmbient(type) {
+        this.stopAmbient();
+        this.init();
+        if (!this.ctx) return;
+
+        this.currentAmbient = type;
+        const bufferSize = this.ctx.sampleRate * 2;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+
+        if (type === 'rain' || type === 'white') {
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+        } else if (type === 'waves') {
+          let lastOut = 0.0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            output[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = output[i];
+            output[i] *= 3.5;
+          }
+        }
+
+        if (type === 'binaural') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(432, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          this.ambientNode = osc;
+          this.ambientGain = gain;
+        } else {
+          const whiteNoise = this.ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = type === 'rain' ? 'bandpass' : (type === 'waves' ? 'lowpass' : 'allpass');
+          filter.frequency.value = type === 'rain' ? 1000 : 400;
+
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(type === 'rain' ? 0.08 : 0.06, this.ctx.currentTime);
+
+          whiteNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          whiteNoise.start();
+
+          this.ambientNode = whiteNoise;
+          this.ambientGain = gain;
+        }
+      }
+
+      stopAmbient() {
+        if (this.ambientNode) {
+          try {
+            this.ambientNode.stop();
+          } catch(e) {}
+          this.ambientNode.disconnect();
+          this.ambientNode = null;
+        }
+        this.currentAmbient = null;
+      }
+    }
+
+    const audio = new AudioSystem();
+
+    /* -------------------------------------------------------------
+       STATE MANAGEMENT & STORAGE
+       ------------------------------------------------------------- */
+    const STORAGE_KEYS = {
+      TASKS: 'prod_hub_tasks_v1',
+      JOURNAL: 'prod_hub_journal_v1',
+      CUSTOM_CARDS: 'prod_hub_cards_v1',
+      STATS: 'prod_hub_stats_v1',
+      SOMNI_CHAT: 'prod_hub_somni_chat_v1'
+    };
+
+    // Default Flashcard Decks
+    const DEFAULT_DECKS = {
+      productivity: [
+        {
+          front: "What is the 2-Minute Rule?",
+          back: "If an action takes less than 2 minutes to do, do it immediately instead of postponing or adding it to a to-do list.",
+          topic: "Time Management"
+        },
+        {
+          front: "What is the Ivy Lee Method?",
+          back: "At the end of each day, write down the 6 most important tasks for tomorrow and work through them strictly one by one.",
+          topic: "Prioritization"
+        },
+        {
+          front: "What is Active Recall?",
+          back: "The principle of testing yourself to retrieve knowledge from memory, rather than passively re-reading or highlighting.",
+          topic: "Learning"
+        },
+        {
+          front: "What is the Eisenhower Matrix?",
+          back: "A grid that categorizes tasks by Urgency and Importance to decide whether to Do, Schedule, Delegate, or Delete.",
+          topic: "Decision Making"
+        },
+        {
+          front: "What is Timeboxing?",
+          back: "Allocating a fixed, pre-determined time period (timebox) to a specific task, then stopping once time expires.",
+          topic: "Deep Work"
+        }
+      ],
+      code: [
+        {
+          front: "What is a Closure in JavaScript?",
+          back: "A function that has access to its outer (lexical) scope variables even after the outer function has finished executing.",
+          topic: "JavaScript"
+        },
+        {
+          front: "What is the difference between null and undefined?",
+          back: "undefined means a variable has been declared but not yet assigned; null is an intentional assignment representing 'no value'.",
+          topic: "JS Fundamentals"
+        },
+        {
+          front: "What does Array.prototype.reduce() do?",
+          back: "Executes a user-supplied 'reducer' callback function on each element of the array, resulting in a single accumulated output value.",
+          topic: "Functional JS"
+        },
+        {
+          front: "What is Event Delegation?",
+          back: "A technique of listening to events at a parent element rather than each individual child using event bubbling.",
+          topic: "DOM Performance"
+        }
+      ]
+    };
+
+    const AppState = {
+      currentTab: 'screen-tasks',
+      activeFilter: 'all',
+      selectedPriority: 'medium',
+      tasks: [],
+      journalEntries: [],
+      customCards: [],
+      stats: {
+        focusSessions: 0,
+        focusMinutes: 0,
+        streak: 1
+      },
+      currentDeckId: 'productivity',
+      currentCardIndex: 0,
+      currentCardsList: [],
+      masteredCount: 0,
+      activeMood: '⚡',
+      activeTag: 'Win',
+      // Somni Flashcard Generator State
+      aiSubject: '🧠 Productivity & Habits',
+      aiQuestionCount: 5,
+      aiTimerPerQuestion: 15,
+      isFlashcardSessionActive: false,
+      questionTimerInterval: null,
+      questionTimeRemaining: 15,
+      isQuestionTimerPaused: false,
+      // Somni Study Assistant Chat State
+      somniChatMessages: []
+    };
+
+    /* -------------------------------------------------------------
+       INITIALIZATION
+       ------------------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStoredData();
+      renderDateHeader();
+      initNavigation();
+      initTasksTab();
+      initFocusTimer();
+      initFlashcards();
+      initStudyAssistant();
+      initJournal();
+      initSoundControls();
+    });
+
+    function loadStoredData() {
+      // Tasks
+      const savedTasks = localStorage.getItem(STORAGE_KEYS.TASKS);
+      if (savedTasks) {
+        try { AppState.tasks = JSON.parse(savedTasks); } catch(e) { AppState.tasks = []; }
+      } else {
+        // Initial sample tasks
+        AppState.tasks = [
+          { id: '1', title: 'Complete high priority project deliverable', priority: 'high', completed: false },
+          { id: '2', title: 'Complete 25m Focus session on JS', priority: 'medium', completed: false },
+          { id: '3', title: 'Review study flashcards in My Journal', priority: 'low', completed: true }
+        ];
+        saveTasks();
+      }
+
+      // Journal
+      const savedJournal = localStorage.getItem(STORAGE_KEYS.JOURNAL);
+      if (savedJournal) {
+        try { AppState.journalEntries = JSON.parse(savedJournal); } catch(e) { AppState.journalEntries = []; }
+      } else {
+        const now = new Date();
+        AppState.journalEntries = [
+          {
+            id: 'j1',
+            timestamp: Date.now(),
+            subject: '💻 Computer Science',
+            text: 'Explored modern Web Audio API and local storage state management for responsive mobile web apps.',
+            date: now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+            time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+          }
+        ];
+        saveJournal();
+      }
+
+      // Custom Flashcards
+      const savedCards = localStorage.getItem(STORAGE_KEYS.CUSTOM_CARDS);
+      if (savedCards) {
+        try { AppState.customCards = JSON.parse(savedCards); } catch(e) { AppState.customCards = []; }
+      }
+
+      // Stats
+      const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
+      if (savedStats) {
+        try { AppState.stats = JSON.parse(savedStats); } catch(e) {}
+      }
+
+      // Somni Chat History
+      const savedChat = localStorage.getItem(STORAGE_KEYS.SOMNI_CHAT);
+      if (savedChat) {
+        try { AppState.somniChatMessages = JSON.parse(savedChat); } catch(e) { AppState.somniChatMessages = []; }
+      }
+      if (!AppState.somniChatMessages || AppState.somniChatMessages.length === 0) {
+        AppState.somniChatMessages = [
+          {
+            id: 'msg-welcome',
+            sender: 'somni',
+            text: "👋 Hi there! I'm **Somni**, your personal AI study companion and productivity coach.\n\nWhether you need an explanation of a complex topic, a custom study schedule, active recall strategies, or help overcoming procrastination—I'm here to help you study smarter! What are you working on today?",
+            time: 'Just now'
+          }
+        ];
+        saveSomniChat();
+      }
+    }
+
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(AppState.tasks));
+      updateTaskBadge();
+    }
+
+    function saveJournal() {
+      localStorage.setItem(STORAGE_KEYS.JOURNAL, JSON.stringify(AppState.journalEntries));
+    }
+
+    function saveCustomCards() {
+      localStorage.setItem(STORAGE_KEYS.CUSTOM_CARDS, JSON.stringify(AppState.customCards));
+    }
+
+    function saveStats() {
+      localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(AppState.stats));
+    }
+
+    function saveSomniChat() {
+      localStorage.setItem(STORAGE_KEYS.SOMNI_CHAT, JSON.stringify(AppState.somniChatMessages));
+    }
+
+    function renderDateHeader() {
+      const now = new Date();
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      const formatted = now.toLocaleDateString('en-US', options);
+      const displayEl = document.getElementById('header-date-display');
+      if (displayEl) {
+        displayEl.textContent = `Today • ${formatted}`;
+      }
+    }
+
+    function showToast(message, icon = '✨') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2200);
+    }
+
+    /* -------------------------------------------------------------
+       TAB SWITCHING NAVIGATION
+       ------------------------------------------------------------- */
+    function initNavigation() {
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          const targetScreenId = tab.dataset.tab;
+          if (targetScreenId === AppState.currentTab) return;
+
+          audio.playClick();
+
+          // Update Tab styling
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          // Switch Screen
+          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+          const targetScreen = document.getElementById(targetScreenId);
+          if (targetScreen) {
+            targetScreen.classList.add('active');
+            AppState.currentTab = targetScreenId;
+          }
+
+          // Special tab focus triggers
+          if (targetScreenId === 'screen-flashcards') {
+            loadDeck(AppState.currentDeckId);
+          }
+        });
+      });
+    }
+
+    function updateTaskBadge() {
+      const pendingCount = AppState.tasks.filter(t => !t.completed).length;
+      const badge = document.getElementById('nav-task-badge');
+      if (badge) {
+        if (pendingCount > 0) {
+          badge.textContent = pendingCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    /* -------------------------------------------------------------
+       TAB 1: DUE TASKS LOGIC
+       ------------------------------------------------------------- */
+    function initTasksTab() {
+      const form = document.getElementById('task-input-form');
+      const quickInput = document.getElementById('task-quick-input');
+      const priorityBtns = document.querySelectorAll('.priority-pill-btn');
+      const filters = document.querySelectorAll('#task-filters .filter-chip');
+
+      // Priority pill click selection
+      priorityBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          priorityBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          AppState.selectedPriority = btn.dataset.priority;
+          audio.playClick();
+        });
+      });
+
+      function handleAddTask() {
+        const text = quickInput.value.trim();
+        if (!text) return;
+
+        const newTask = {
+          id: Date.now().toString(),
+          title: text,
+          priority: AppState.selectedPriority || 'medium',
+          completed: false,
+          createdAt: Date.now()
+        };
+
+        AppState.tasks.unshift(newTask);
+        saveTasks();
+        renderTasks();
+        quickInput.value = '';
+        audio.playSuccess();
+        showToast('Task added successfully!');
+      }
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          handleAddTask();
+        });
+      }
+
+      // Filter clicks: "all", "due", "completed"
+      filters.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.forEach(f => f.classList.remove('active'));
+          btn.classList.add('active');
+          AppState.activeFilter = btn.dataset.filter;
+          audio.playClick();
+          renderTasks();
+        });
+      });
+
+      renderTasks();
+      updateTaskBadge();
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('task-items-container');
+      if (!container) return;
+
+      let filtered = AppState.tasks;
+      if (AppState.activeFilter === 'due') {
+        filtered = AppState.tasks.filter(t => !t.completed);
+      } else if (AppState.activeFilter === 'completed') {
+        filtered = AppState.tasks.filter(t => t.completed);
+      }
+
+      if (filtered.length === 0) {
+        let emptyMessage = 'No tasks found.';
+        if (AppState.activeFilter === 'due') emptyMessage = 'No pending tasks left! Great job!';
+        if (AppState.activeFilter === 'completed') emptyMessage = 'No completed tasks yet.';
+
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            <p>${emptyMessage}</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = filtered.map(task => `
+          <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+            <!-- Round Checkmark on Left Side -->
+            <div class="task-round-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask('${task.id}')" role="checkbox" aria-checked="${task.completed}" aria-label="Toggle task">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+
+            <!-- Task Title in Center -->
+            <div class="task-content">
+              <div class="task-title">${escapeHTML(task.title)}</div>
+              <div class="task-meta">
+                <span class="priority-badge priority-badge-${task.priority || 'medium'}">${task.priority || 'medium'}</span>
+              </div>
+            </div>
+
+            <!-- Delete Button on Right Side -->
+            <button class="btn-delete-task" onclick="deleteTask('${task.id}')" title="Delete Task" aria-label="Delete Task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // Update progress ring & banner
+      updateTaskProgress();
+    }
+
+    function toggleTask(id) {
+      const task = AppState.tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+        if (task.completed) {
+          audio.playSuccess();
+        } else {
+          audio.playClick();
+        }
+      }
+    }
+
+    function deleteTask(id) {
+      AppState.tasks = AppState.tasks.filter(t => t.id !== id);
+      saveTasks();
+      renderTasks();
+      audio.playClick();
+      showToast('Task removed', '🗑️');
+    }
+
+    function updateTaskProgress() {
+      const total = AppState.tasks.length;
+      const completed = AppState.tasks.filter(t => t.completed).length;
+      const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+      const summaryEl = document.getElementById('task-summary-text');
+      const pctEl = document.getElementById('task-progress-pct');
+      const ring = document.getElementById('task-progress-ring');
+
+      if (summaryEl) summaryEl.textContent = `${completed} of ${total} tasks completed`;
+      if (pctEl) pctEl.textContent = `${pct}%`;
+
+      if (ring) {
+        // radius = 23, circumference = 2 * PI * 23 ~= 144.51
+        const circumference = 144.51;
+        const offset = circumference - (pct / 100) * circumference;
+        ring.style.strokeDashoffset = offset;
+      }
+    }
+
+    /* -------------------------------------------------------------
+       TAB 2: LEARNING FOCUS TIMER & DINO BREAK GAME
+       ------------------------------------------------------------- */
+    let timerInterval = null;
+    let timerTotalSeconds = 25 * 60;
+    let timerRemainingSeconds = 25 * 60;
+    let isTimerRunning = false;
+    let currentTimerMode = 'study'; // 'study' or 'break'
+
+    function initFocusTimer() {
+      // Load saved custom durations
+      AppState.customFocusMins = parseInt(localStorage.getItem('prod_hub_focus_mins'), 10) || 25;
+      AppState.customBreakMins = parseInt(localStorage.getItem('prod_hub_break_mins'), 10) || 5;
+
+      const btnStudyMode = document.getElementById('btn-mode-study');
+      const btnBreakMode = document.getElementById('btn-mode-break');
+      const btnStart = document.getElementById('btn-timer-action-start');
+      const btnPause = document.getElementById('btn-timer-action-pause');
+      const btnReset = document.getElementById('btn-timer-action-reset');
+      
+      const btnDecTime = document.getElementById('btn-dec-time');
+      const btnIncTime = document.getElementById('btn-inc-time');
+
+      // Mode buttons
+      btnStudyMode.addEventListener('click', () => switchTimerMode('study'));
+      btnBreakMode.addEventListener('click', () => switchTimerMode('break'));
+
+      // Stepper adjustments for custom durations
+      btnDecTime.addEventListener('click', () => adjustCustomTime(-1));
+      btnIncTime.addEventListener('click', () => adjustCustomTime(1));
+
+      // Thumb-Friendly 3-Action Buttons
+      btnStart.addEventListener('click', () => {
+        audio.playClick();
+        startTimer();
+      });
+
+      btnPause.addEventListener('click', () => {
+        audio.playClick();
+        pauseTimer();
+      });
+
+      btnReset.addEventListener('click', () => {
+        resetTimer();
+      });
+
+      // Reflection Modal Event Handlers
+      const reflectionModal = document.getElementById('modal-reflection');
+      const btnGoJournal = document.getElementById('btn-go-to-journal');
+      const btnStartBreakGame = document.getElementById('btn-start-break-game');
+      const btnDismissReflection = document.getElementById('btn-dismiss-reflection');
+
+      if (btnGoJournal) {
+        btnGoJournal.addEventListener('click', () => {
+          reflectionModal.classList.remove('active');
+          // Switch to My Journal tab
+          const journalTabBtn = document.getElementById('tab-my-journal');
+          if (journalTabBtn) journalTabBtn.click();
+          setTimeout(() => {
+            const journalInput = document.getElementById('journal-input');
+            if (journalInput) journalInput.focus();
+          }, 300);
+        });
+      }
+
+      if (btnStartBreakGame) {
+        btnStartBreakGame.addEventListener('click', () => {
+          reflectionModal.classList.remove('active');
+          switchTimerMode('break');
+          const dinoSection = document.getElementById('dino-game-section');
+          if (dinoSection) dinoSection.scrollIntoView({ behavior: 'smooth' });
+          if (window.startDinoGame) window.startDinoGame();
+        });
+      }
+
+      if (btnDismissReflection) {
+        btnDismissReflection.addEventListener('click', () => {
+          reflectionModal.classList.remove('active');
+        });
+      }
+
+      // Ambient Audio Buttons
+      const ambientBtns = document.querySelectorAll('.ambient-btn');
+      ambientBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const soundType = btn.dataset.sound;
+          const statusBadge = document.getElementById('ambient-status');
+
+          if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            audio.stopAmbient();
+            if (statusBadge) {
+              statusBadge.textContent = 'Off';
+              statusBadge.style.background = '#f1f5f9';
+              statusBadge.style.color = '#64748b';
+            }
+          } else {
+            ambientBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            audio.startAmbient(soundType);
+            if (statusBadge) {
+              statusBadge.textContent = 'Playing';
+              statusBadge.style.background = '#dcfce7';
+              statusBadge.style.color = '#15803d';
+            }
+          }
+        });
+      });
+
+      updateModeLabels();
+      setTimerDuration(AppState.customFocusMins, 'Focus Study');
+      renderFocusStats();
+
+      // Ensure Dino Game is only displayed when it is break time
+      const dinoSection = document.getElementById('dino-game-section');
+      if (dinoSection) {
+        dinoSection.style.display = (currentTimerMode === 'break') ? 'block' : 'none';
+      }
+
+      // Initialize the Dinosaur Jumping Game
+      initDinoGame();
+    }
+
+    function updateModeLabels() {
+      const studyLabel = document.getElementById('label-mode-study');
+      const breakLabel = document.getElementById('label-mode-break');
+      const stepperModeName = document.getElementById('stepper-mode-name');
+      const stepperMinsDisplay = document.getElementById('stepper-mins-display');
+
+      if (studyLabel) studyLabel.textContent = `${AppState.customFocusMins} Minute Focus Study`;
+      if (breakLabel) breakLabel.textContent = `${AppState.customBreakMins} Minute Relax Break`;
+
+      if (currentTimerMode === 'study') {
+        if (stepperModeName) stepperModeName.textContent = 'Study:';
+        if (stepperMinsDisplay) stepperMinsDisplay.textContent = `${AppState.customFocusMins}m`;
+      } else {
+        if (stepperModeName) stepperModeName.textContent = 'Break:';
+        if (stepperMinsDisplay) stepperMinsDisplay.textContent = `${AppState.customBreakMins}m`;
+      }
+    }
+
+    function switchTimerMode(mode) {
+      if (isTimerRunning) {
+        if (!confirm('Timer is active. Switch mode and reset?')) return;
+      }
+      currentTimerMode = mode;
+      
+      const btnStudy = document.getElementById('btn-mode-study');
+      const btnBreak = document.getElementById('btn-mode-break');
+      const dinoSection = document.getElementById('dino-game-section');
+      
+      if (mode === 'study') {
+        btnStudy.classList.add('active');
+        btnBreak.classList.remove('active');
+        setTimerDuration(AppState.customFocusMins, 'Focus Study');
+        // Dino game is only shown during break time
+        if (dinoSection) dinoSection.style.display = 'none';
+      } else {
+        btnBreak.classList.add('active');
+        btnStudy.classList.remove('active');
+        setTimerDuration(AppState.customBreakMins, 'Relax Break');
+        // Reveal Dino game during break time
+        if (dinoSection) dinoSection.style.display = 'block';
+      }
+
+      updateModeLabels();
+      audio.playClick();
+    }
+
+    function adjustCustomTime(delta) {
+      audio.playClick();
+      if (currentTimerMode === 'study') {
+        AppState.customFocusMins = Math.max(1, Math.min(120, AppState.customFocusMins + delta));
+        localStorage.setItem('prod_hub_focus_mins', AppState.customFocusMins);
+        if (!isTimerRunning) {
+          setTimerDuration(AppState.customFocusMins, 'Focus Study');
+        }
+      } else {
+        AppState.customBreakMins = Math.max(1, Math.min(60, AppState.customBreakMins + delta));
+        localStorage.setItem('prod_hub_break_mins', AppState.customBreakMins);
+        if (!isTimerRunning) {
+          setTimerDuration(AppState.customBreakMins, 'Relax Break');
+        }
+      }
+      updateModeLabels();
+    }
+
+    function setTimerDuration(mins, modeName) {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerTotalSeconds = mins * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      
+      const modeLabel = document.getElementById('timer-mode-label');
+      if (modeLabel) modeLabel.textContent = modeName;
+
+      renderTimerDisplay();
+    }
+
+    function startTimer() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      showToast(`${currentTimerMode === 'study' ? 'Focus session' : 'Break'} started!`, '⏳');
+      
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          renderTimerDisplay();
+        } else {
+          finishTimerSession();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (!isTimerRunning) return;
+      isTimerRunning = false;
+      clearInterval(timerInterval);
+      showToast('Timer paused', '⏸️');
+    }
+
+    function resetTimer() {
+      audio.playClick();
+      pauseTimer();
+      timerRemainingSeconds = timerTotalSeconds;
+      renderTimerDisplay();
+      showToast('Timer reset', '🔄');
+    }
+
+    function finishTimerSession() {
+      pauseTimer();
+      // Sound short beep tone using Web Audio API
+      audio.playAlarmBeep();
+      
+      if (currentTimerMode === 'study') {
+        AppState.stats.focusSessions++;
+        AppState.stats.focusMinutes += Math.round(timerTotalSeconds / 60);
+        saveStats();
+        renderFocusStats();
+
+        // Show Reflection Popup
+        const reflectionModal = document.getElementById('modal-reflection');
+        if (reflectionModal) {
+          reflectionModal.classList.add('active');
+        }
+      } else {
+        showToast('Break Time Over! Ready for Deep Work? 🎯', '☕');
+      }
+
+      timerRemainingSeconds = timerTotalSeconds;
+      renderTimerDisplay();
+    }
+
+    function renderTimerDisplay() {
+      const mins = Math.floor(timerRemainingSeconds / 60);
+      const secs = timerRemainingSeconds % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      
+      const displayEl = document.getElementById('timer-display');
+      if (displayEl) displayEl.textContent = formatted;
+
+      // Circular Ring: radius = 96, circumference = 2 * PI * 96 ~= 603.18
+      const ring = document.getElementById('timer-ring');
+      if (ring) {
+        const circumference = 603.18;
+        const progressFraction = timerRemainingSeconds / timerTotalSeconds;
+        const offset = circumference * (1 - progressFraction);
+        ring.style.strokeDashoffset = offset;
+      }
+    }
+
+    function renderFocusStats() {
+      const sessionsEl = document.getElementById('stat-focus-sessions');
+      const minsEl = document.getElementById('stat-focus-minutes');
+      const streakEl = document.getElementById('stat-focus-streak');
+
+      if (sessionsEl) sessionsEl.textContent = AppState.stats.focusSessions;
+      if (minsEl) minsEl.textContent = `${AppState.stats.focusMinutes}m`;
+      if (streakEl) streakEl.textContent = `🔥 ${AppState.stats.streak}`;
+    }
+
+    /* -------------------------------------------------------------
+       BREAK TIME GAME: GOOGLE DINOSAUR JUMPING GAME
+       ------------------------------------------------------------- */
+    function initDinoGame() {
+      const canvas = document.getElementById('dino-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const jumpBtn = document.getElementById('btn-dino-jump');
+      const scoreBadge = document.getElementById('dino-score-display');
+      const highBadge = document.getElementById('dino-high-display');
+
+      let highScore = parseInt(localStorage.getItem('prod_hub_dino_highscore'), 10) || 0;
+      if (highBadge) highBadge.textContent = `HI: ${String(highScore).padStart(3, '0')}`;
+
+      let gameScore = 0;
+      let gameState = 'START'; // 'START', 'RUNNING', 'GAMEOVER'
+      let animFrameId = null;
+      let frameCount = 0;
+
+      const groundY = 118;
+      const dino = {
+        x: 35,
+        y: groundY - 24,
+        width: 22,
+        height: 24,
+        vy: 0,
+        gravity: 0.58,
+        jumpPower: -9.8,
+        isGrounded: true,
+        legStep: 0
+      };
+
+      let obstacles = [];
+      let gameSpeed = 3.6;
+
+      function resetGame() {
+        gameScore = 0;
+        frameCount = 0;
+        gameSpeed = 3.6;
+        obstacles = [];
+        dino.y = groundY - 24;
+        dino.vy = 0;
+        dino.isGrounded = true;
+        gameState = 'RUNNING';
+        if (scoreBadge) scoreBadge.textContent = `Score: 000`;
+      }
+
+      function jump() {
+        if (gameState === 'START' || gameState === 'GAMEOVER') {
+          resetGame();
+          audio.playClick();
+          return;
+        }
+
+        if (dino.isGrounded) {
+          dino.vy = dino.jumpPower;
+          dino.isGrounded = false;
+          audio.playJumpSound();
+        }
+      }
+
+      window.startDinoGame = () => {
+        if (gameState !== 'RUNNING') {
+          resetGame();
+        }
+      };
+
+      // Tap / Click controls
+      canvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        jump();
+      });
+
+      if (jumpBtn) {
+        jumpBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          jump();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (AppState.currentTab === 'screen-focus' && (e.code === 'Space' || e.code === 'ArrowUp')) {
+          e.preventDefault();
+          jump();
+        }
+      });
+
+      function spawnObstacle() {
+        const height = 18 + Math.floor(Math.random() * 16);
+        const width = 12 + Math.floor(Math.random() * 10);
+        obstacles.push({
+          x: canvas.width + 10,
+          y: groundY - height,
+          w: width,
+          h: height
+        });
+      }
+
+      function drawDino(x, y, isLegUp) {
+        ctx.fillStyle = '#202A44';
+        
+        // Body & Head
+        ctx.fillRect(x + 4, y, 14, 16);
+        ctx.fillRect(x + 12, y - 4, 10, 10);
+        // Snout
+        ctx.fillRect(x + 18, y, 4, 6);
+        
+        // Eye (white pixel)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 14, y - 2, 2, 2);
+        
+        // Dino green / navy belly & legs
+        ctx.fillStyle = '#202A44';
+        ctx.fillRect(x, y + 8, 4, 8); // Tail
+
+        if (dino.isGrounded) {
+          if (isLegUp) {
+            ctx.fillRect(x + 6, y + 16, 3, 8);
+            ctx.fillRect(x + 13, y + 16, 3, 4);
+          } else {
+            ctx.fillRect(x + 6, y + 16, 3, 4);
+            ctx.fillRect(x + 13, y + 16, 3, 8);
+          }
+        } else {
+          // In air feet tucked
+          ctx.fillRect(x + 6, y + 16, 4, 5);
+          ctx.fillRect(x + 12, y + 16, 4, 5);
+        }
+      }
+
+      function drawObstacle(obs) {
+        ctx.fillStyle = '#10b981';
+        // Cactus trunk
+        ctx.fillRect(obs.x + 4, obs.y, obs.w - 8, obs.h);
+        // Cactus arms
+        if (obs.h > 24) {
+          ctx.fillRect(obs.x, obs.y + 6, 4, 8);
+          ctx.fillRect(obs.x + obs.w - 4, obs.y + 10, 4, 8);
+        }
+      }
+
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Ground
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, groundY);
+        ctx.lineTo(canvas.width, groundY);
+        ctx.stroke();
+
+        // Draw decorative clouds
+        ctx.fillStyle = '#f1f5f9';
+        ctx.beginPath();
+        ctx.arc(80 - (frameCount * 0.3) % 460, 30, 14, 0, Math.PI * 2);
+        ctx.arc(100 - (frameCount * 0.3) % 460, 30, 18, 0, Math.PI * 2);
+        ctx.arc(120 - (frameCount * 0.3) % 460, 30, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(280 - (frameCount * 0.4) % 460, 45, 12, 0, Math.PI * 2);
+        ctx.arc(300 - (frameCount * 0.4) % 460, 45, 16, 0, Math.PI * 2);
+        ctx.arc(318 - (frameCount * 0.4) % 460, 45, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (gameState === 'START') {
+          drawDino(dino.x, dino.y, false);
+          ctx.fillStyle = '#475569';
+          ctx.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Tap to Start Break Dino Jump!', canvas.width / 2, 70);
+        } else if (gameState === 'RUNNING') {
+          frameCount++;
+
+          // Physics
+          dino.vy += dino.gravity;
+          dino.y += dino.vy;
+
+          if (dino.y >= groundY - dino.height) {
+            dino.y = groundY - dino.height;
+            dino.vy = 0;
+            dino.isGrounded = true;
+          }
+
+          // Leg step
+          if (frameCount % 6 === 0) {
+            dino.legStep = 1 - dino.legStep;
+          }
+
+          // Spawn obstacles
+          if (frameCount % 85 === 0 && Math.random() > 0.15) {
+            spawnObstacle();
+          }
+
+          // Move & render obstacles
+          for (let i = obstacles.length - 1; i >= 0; i--) {
+            const obs = obstacles[i];
+            obs.x -= gameSpeed;
+            drawObstacle(obs);
+
+            // Collision detection
+            const dinoBox = { x: dino.x + 3, y: dino.y + 2, w: dino.width - 5, h: dino.height - 3 };
+            const obsBox = { x: obs.x + 2, y: obs.y, w: obs.w - 4, h: obs.h };
+
+            if (
+              dinoBox.x < obsBox.x + obsBox.w &&
+              dinoBox.x + dinoBox.w > obsBox.x &&
+              dinoBox.y < obsBox.y + obsBox.h &&
+              dinoBox.y + dinoBox.h > obsBox.y
+            ) {
+              // Game Over
+              gameState = 'GAMEOVER';
+              if (gameScore > highScore) {
+                highScore = gameScore;
+                localStorage.setItem('prod_hub_dino_highscore', highScore);
+                if (highBadge) highBadge.textContent = `HI: ${String(highScore).padStart(3, '0')}`;
+                showToast(`New Dino High Score: ${highScore}! 🏆`, '🦖');
+              }
+            }
+
+            if (obs.x + obs.w < 0) {
+              obstacles.splice(i, 1);
+            }
+          }
+
+          // Draw Dino
+          drawDino(dino.x, dino.y, dino.legStep === 1);
+
+          // Score Increment
+          if (frameCount % 4 === 0) {
+            gameScore++;
+            if (scoreBadge) scoreBadge.textContent = `Score: ${String(gameScore).padStart(3, '0')}`;
+            if (gameScore % 50 === 0) {
+              gameSpeed = Math.min(8, gameSpeed + 0.2);
+            }
+          }
+        } else if (gameState === 'GAMEOVER') {
+          drawDino(dino.x, dino.y, false);
+          obstacles.forEach(drawObstacle);
+
+          // Game Over Screen
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('GAME OVER', canvas.width / 2, 55);
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText(`Score: ${gameScore}  |  Best: ${highScore}`, canvas.width / 2, 78);
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText('Tap screen to play again', canvas.width / 2, 100);
+        }
+
+        animFrameId = requestAnimationFrame(gameLoop);
+      }
+
+      gameLoop();
+    }
+
+    /* -------------------------------------------------------------
+       TAB 3: FLASHCARDS (AI SUBJECT ADDER & TIMED QUIZ) LOGIC
+       ------------------------------------------------------------- */
+    const AI_PRESET_DECKS = {
+      productivity: [
+        {
+          front: "What is the 2-Minute Rule in Productivity?",
+          back: "If an action takes less than 2 minutes to do, do it immediately instead of postponing or adding it to a to-do list.",
+          topic: "Time Management"
+        },
+        {
+          front: "What is the Ivy Lee Method?",
+          back: "At the end of each day, write down the 6 most important tasks for tomorrow and work through them strictly one by one.",
+          topic: "Prioritization"
+        },
+        {
+          front: "What is Active Recall and why is it effective?",
+          back: "Testing yourself to retrieve knowledge from memory stimulates neural pathways and strengthens long-term memory far better than passive review.",
+          topic: "Learning"
+        },
+        {
+          front: "How does the Eisenhower Matrix prioritize tasks?",
+          back: "It organizes tasks into 4 quadrants based on Urgency and Importance: Do First, Schedule, Delegate, and Eliminate.",
+          topic: "Decision Making"
+        },
+        {
+          front: "What is Parkinson's Law?",
+          back: "Work expands to fill the time available for its completion. Setting tighter artificial deadlines improves focus and velocity.",
+          topic: "Deep Work"
+        },
+        {
+          front: "What is the Pareto Principle (80/20 Rule)?",
+          back: "Roughly 80% of consequences come from 20% of causes. In productivity, 20% of high-leverage activities produce 80% of valuable outcomes.",
+          topic: "Efficiency"
+        },
+        {
+          front: "What is Habit Stacking?",
+          back: "A strategy where you pair a new habit you want to build with a current habit you already do consistently every single day.",
+          topic: "Habit Formation"
+        },
+        {
+          front: "What is Timeboxing?",
+          back: "Allocating a fixed, pre-determined time period (timebox) to a specific task, then stopping once time expires.",
+          topic: "Deep Work"
+        },
+        {
+          front: "What is the difference between Deep Work and Shallow Work?",
+          back: "Deep Work is distraction-free concentration pushing cognitive limits; Shallow Work consists of logistical, non-cognitively demanding tasks (e.g., answering routine emails).",
+          topic: "Focus"
+        },
+        {
+          front: "What is the Zeigarnik Effect?",
+          back: "The psychological tendency for people to remember uncompleted or interrupted tasks better than completed ones.",
+          topic: "Cognition"
+        },
+        {
+          front: "What is the Feynman Technique?",
+          back: "A 4-step learning method: Choose a concept, teach it to a child or beginner, identify your knowledge gaps, and review/simplify.",
+          topic: "Learning"
+        },
+        {
+          front: "What is Spaced Repetition?",
+          back: "An evidence-based learning technique that incorporates increasing intervals of time between subsequent review of previously learned material.",
+          topic: "Memory"
+        },
+        {
+          front: "What is Batching in Task Management?",
+          back: "Grouping similar tasks together and doing them in a single dedicated block of time to minimize context switching overhead.",
+          topic: "Workflows"
+        },
+        {
+          front: "What is the GTD (Getting Things Done) Capture step?",
+          back: "Immediately recording every idea, commitment, or to-do outside your brain into a trusted external inbox so mental RAM stays clear.",
+          topic: "GTD"
+        },
+        {
+          front: "What is deliberate practice?",
+          back: "Purposeful and systematic practice focused on addressing specific weaknesses just beyond your current comfort zone, paired with immediate feedback.",
+          topic: "Mastery"
+        }
+      ],
+      javascript: [
+        {
+          front: "What is a Closure in JavaScript?",
+          back: "A function bundled together with references to its lexical environment, allowing it to access outer variables even after the outer function executes.",
+          topic: "JavaScript"
+        },
+        {
+          front: "What is the JavaScript Event Loop?",
+          back: "A mechanism that constantly checks if the call stack is empty; if so, it takes the first task from the task/microtask queue and pushes it onto the stack.",
+          topic: "Asynchronous JS"
+        },
+        {
+          front: "What is the difference between null and undefined?",
+          back: "undefined means a variable has been declared but not assigned a value; null is an intentional assignment representing 'no object value'.",
+          topic: "JS Fundamentals"
+        },
+        {
+          front: "How do Microtasks differ from Macrotasks in JavaScript?",
+          back: "Microtasks (Promises, queueMicrotask, MutationObserver) have higher priority and run immediately after the current operation and before the next Macrotask (setTimeout, setInterval).",
+          topic: "Event Loop"
+        },
+        {
+          front: "What is the difference between == and === in JavaScript?",
+          back: "== performs type coercion before comparison; === performs strict equality check without type coercion (both value and type must match).",
+          topic: "Operators"
+        },
+        {
+          front: "What is Debouncing vs Throttling?",
+          back: "Debouncing delays execution until a certain amount of time has elapsed since the last call. Throttling limits execution to at most once per specified time interval.",
+          topic: "Performance"
+        },
+        {
+          front: "How do Arrow Functions handle the 'this' keyword?",
+          back: "Arrow functions do not have their own 'this'; they lexically bind 'this' from the enclosing execution context in which they are defined.",
+          topic: "ES6"
+        },
+        {
+          front: "What is Prototypal Inheritance in JS?",
+          back: "Objects inherit properties and methods directly from other objects via their hidden [[Prototype]] property and prototype chain.",
+          topic: "Object Oriented JS"
+        },
+        {
+          front: "What does Array.prototype.reduce() do?",
+          back: "Iterates through array elements and executes a reducer callback on each, accumulating the results into a single output value.",
+          topic: "Array Methods"
+        },
+        {
+          front: "What is Event Delegation?",
+          back: "Attaching a single event listener to a parent element rather than many individual child elements, leveraging DOM event bubbling.",
+          topic: "DOM Manipulation"
+        },
+        {
+          front: "What is Variable Hoisting?",
+          back: "JavaScript's default behavior of moving variable and function declarations to the top of their containing scope during compilation.",
+          topic: "Scoping"
+        },
+        {
+          front: "What is the Temporal Dead Zone (TDZ)?",
+          back: "The period between entering scope and the declaration where let and const variables cannot be accessed without throwing a ReferenceError.",
+          topic: "Variables"
+        },
+        {
+          front: "What does Promise.all() do?",
+          back: "Takes an iterable of promises and returns a single promise that resolves when all input promises have resolved, or rejects immediately if any promise rejects.",
+          topic: "Async"
+        },
+        {
+          front: "What is a Pure Function in functional programming?",
+          back: "A function that always returns the same output for the same inputs and causes no side effects (no mutation of external state).",
+          topic: "Functional"
+        },
+        {
+          front: "What is Currying in JavaScript?",
+          back: "A technique of transforming a function with multiple arguments into a sequence of nesting functions that each take a single argument.",
+          topic: "Advanced JS"
+        }
+      ],
+      biology: [
+        {
+          front: "What is the primary function of Mitochondria?",
+          back: "Known as the powerhouse of the cell, mitochondria generate most of the cell's supply of ATP (adenosine triphosphate) through cellular respiration.",
+          topic: "Cell Biology"
+        },
+        {
+          front: "What are the four nucleotide bases in DNA?",
+          back: "Adenine (A), Thymine (T), Cytosine (C), and Guanine (G). A pairs with T (via 2 hydrogen bonds) and C pairs with G (via 3 hydrogen bonds).",
+          topic: "Genetics"
+        },
+        {
+          front: "What is the central dogma of molecular biology?",
+          back: "Genetic information flows in one direction: DNA is transcribed into mRNA, which is then translated into proteins (DNA -> RNA -> Protein).",
+          topic: "Molecular Biology"
+        },
+        {
+          front: "What is the difference between Mitosis and Meiosis?",
+          back: "Mitosis produces 2 genetically identical diploid somatic cells; Meiosis produces 4 genetically unique haploid gametes (sperm/egg cells).",
+          topic: "Cell Division"
+        },
+        {
+          front: "What is CRISPR-Cas9?",
+          back: "A gene-editing tool derived from bacterial immune systems that uses guide RNA and the Cas9 enzyme to cut and modify specific DNA sequences.",
+          topic: "Biotechnology"
+        },
+        {
+          front: "What is Homeostasis?",
+          back: "The state of steady internal physical and chemical conditions maintained by living organisms despite external environmental changes.",
+          topic: "Physiology"
+        },
+        {
+          front: "How do Enzymes catalyze biochemical reactions?",
+          back: "By lowering the activation energy required for the reaction to occur, binding substrates specifically at their active site.",
+          topic: "Biochemistry"
+        },
+        {
+          front: "What is the difference between Osmosis and Diffusion?",
+          back: "Diffusion is the movement of solute particles from high to low concentration; Osmosis is the movement of water molecules across a semipermeable membrane.",
+          topic: "Cell Transport"
+        },
+        {
+          front: "What role do B-cells play in the immune system?",
+          back: "B-cells produce antibodies that specifically bind to antigens on pathogens to neutralize them or mark them for destruction by phagocytes.",
+          topic: "Immunology"
+        },
+        {
+          front: "What is Photosynthesis and where does it take place?",
+          back: "The process of converting light energy, water, and CO2 into glucose and oxygen, taking place inside chloroplasts in plant cells.",
+          topic: "Plant Biology"
+        }
+      ],
+      math: [
+        {
+          front: "What does the Derivative of a function represent geometrically?",
+          back: "The slope of the tangent line to the function's graph at any given point, representing the instantaneous rate of change.",
+          topic: "Calculus"
+        },
+        {
+          front: "What is the Fundamental Theorem of Calculus?",
+          back: "It connects differentiation and integration, showing that differentiation and integration are inverse operations.",
+          topic: "Calculus"
+        },
+        {
+          front: "What is the Chain Rule in differentiation?",
+          back: "A formula for computing the derivative of a composite function: (f(g(x)))' = f'(g(x)) * g'(x).",
+          topic: "Calculus"
+        },
+        {
+          front: "What is an Eigenvector and Eigenvalue?",
+          back: "An eigenvector is a non-zero vector that only changes by a scalar factor (the eigenvalue) when a linear transformation is applied to it (Av = λv).",
+          topic: "Linear Algebra"
+        },
+        {
+          front: "What does Bayes' Theorem calculate?",
+          back: "The conditional probability of an event given prior knowledge of conditions related to the event: P(A|B) = [P(B|A) * P(A)] / P(B).",
+          topic: "Probability"
+        },
+        {
+          front: "What is the Law of Large Numbers?",
+          back: "As the number of identically distributed, randomly generated variables increases, their sample average approaches their theoretical expected value.",
+          topic: "Statistics"
+        },
+        {
+          front: "What is the difference between Dot Product and Cross Product?",
+          back: "The Dot Product yields a scalar representing directional projection; the Cross Product yields a vector orthogonal to both input vectors in 3D space.",
+          topic: "Vector Math"
+        },
+        {
+          front: "What is Integration by Parts formula?",
+          back: "∫ u dv = u*v - ∫ v du, derived from the product rule of differentiation.",
+          topic: "Calculus"
+        },
+        {
+          front: "What defines a Prime Number?",
+          back: "A natural number strictly greater than 1 that has no positive divisors other than 1 and itself.",
+          topic: "Number Theory"
+        },
+        {
+          front: "What is the Pythagorean Identity in Trigonometry?",
+          back: "sin²(θ) + cos²(θ) = 1, derived from the unit circle where x = cos(θ) and y = sin(θ).",
+          topic: "Trigonometry"
+        }
+      ],
+      history: [
+        {
+          front: "What was the significance of the Magna Carta in 1215?",
+          back: "It established for the first time the principle that everyone, even the king, is subject to the law, laying the foundation for constitutional governance.",
+          topic: "Medieval History"
+        },
+        {
+          front: "What event triggered the start of World War I in 1914?",
+          back: "The assassination of Archduke Franz Ferdinand of Austria-Hungary by Gavrilo Princip in Sarajevo.",
+          topic: "Modern History"
+        },
+        {
+          front: "What was the primary goal of the Treaty of Versailles (1919)?",
+          back: "To establish peace terms concluding WWI, imposing severe financial reparations, territorial losses, and military restrictions on Germany.",
+          topic: "20th Century"
+        },
+        {
+          front: "What marked the Fall of Constantinople in 1453?",
+          back: "The conquest of the Byzantine capital by the Ottoman Empire led by Sultan Mehmed II, ending the Roman Empire and closing trade routes to Asia.",
+          topic: "Renaissance Era"
+        },
+        {
+          front: "What was the Manhattan Project (1942-1946)?",
+          back: "A top-secret US-led research initiative that developed the first nuclear weapons during World War II.",
+          topic: "World War II"
+        },
+        {
+          front: "What was the Rosetta Stone and why was it crucial?",
+          back: "An ancient stele inscribed with three scripts (Hieroglyphs, Demotic, Ancient Greek) that allowed modern scholars to decipher Egyptian hieroglyphs.",
+          topic: "Ancient History"
+        },
+        {
+          front: "What were the primary drivers of the Industrial Revolution?",
+          back: "The transition from manual labor to steam-powered machinery, factory systems, metallurgy improvements, and expanded railway transportation networks.",
+          topic: "Economic History"
+        },
+        {
+          front: "What was the Silk Road?",
+          back: "An ancient network of Eurasian trade routes connecting China and the Far East with the Middle East and Europe, facilitating goods and cultural exchange.",
+          topic: "Trade History"
+        },
+        {
+          front: "What was the significance of the 1969 Apollo 11 mission?",
+          back: "It successfully landed humans (Neil Armstrong and Buzz Aldrin) on the Moon for the first time in history, marking a major milestone in the Space Race.",
+          topic: "Cold War Era"
+        },
+        {
+          front: "What was the US Civil Rights Act of 1964?",
+          back: "Landmark civil rights legislation that prohibited discrimination based on race, color, religion, sex, or national origin in public accommodations and employment.",
+          topic: "Civil Rights"
+        }
+      ],
+      ai: [
+        {
+          front: "What is the difference between Supervised and Unsupervised Learning?",
+          back: "Supervised learning trains on labeled input-output pairs; Unsupervised learning finds hidden patterns and clusters in unlabeled data without explicit targets.",
+          topic: "Machine Learning"
+        },
+        {
+          front: "What is Overfitting and how can it be mitigated?",
+          back: "Overfitting happens when a model learns training noise rather than general patterns. It is mitigated by regularization (L1/L2), dropout, cross-validation, and more data.",
+          topic: "Model Training"
+        },
+        {
+          front: "What is Gradient Descent in Neural Networks?",
+          back: "An iterative optimization algorithm for finding the local minimum of a loss function by taking steps proportional to the negative of the gradient.",
+          topic: "Optimization"
+        },
+        {
+          front: "What is the Self-Attention mechanism in Transformers?",
+          back: "A mechanism that allows the model to dynamically weight the importance of different tokens in a sequence relative to each other, regardless of their distance.",
+          topic: "Deep Learning"
+        },
+        {
+          front: "What is the difference between Precision and Recall?",
+          back: "Precision measures of all predicted positives, how many are true positives (TP / (TP+FP)); Recall measures of all actual positives, how many were correctly caught (TP / (TP+FN)).",
+          topic: "Evaluation Metrics"
+        },
+        {
+          front: "What is Backpropagation?",
+          back: "An algorithm for calculating the gradient of the loss function with respect to each weight using the chain rule, enabling efficient neural network training.",
+          topic: "Neural Networks"
+        },
+        {
+          front: "What is a Vector Embedding in AI?",
+          back: "A numerical representation of words, concepts, or images in high-dimensional vector space where semantically similar items are located close together.",
+          topic: "NLP & Embeddings"
+        },
+        {
+          front: "Why is ReLU (Rectified Linear Unit) widely used as an activation function?",
+          back: "ReLU (f(x) = max(0, x)) introduces non-linearity while preventing the vanishing gradient problem in positive regions and computing much faster than sigmoid.",
+          topic: "Deep Learning"
+        },
+        {
+          front: "What is Temperature in LLM generation?",
+          back: "A hyperparameter that controls randomness in sampling: lower temperature (<0.5) makes outputs deterministic and focused; higher temperature (>0.8) increases creative variance.",
+          topic: "Generative AI"
+        },
+        {
+          front: "What is Fine-Tuning vs RAG (Retrieval-Augmented Generation)?",
+          back: "Fine-tuning modifies a model's internal weights on domain examples; RAG retrieves external factual documents dynamically at inference time and provides them in context.",
+          topic: "LLM Architecture"
+        }
+      ],
+      economics: [
+        {
+          front: "What is Opportunity Cost?",
+          back: "The potential benefit or value of the next best alternative that is forgone when making a specific choice.",
+          topic: "Microeconomics"
+        },
+        {
+          front: "What is the Law of Supply and Demand?",
+          back: "Prices adjust to balance the quantity supplied by producers with the quantity demanded by consumers in an open market equilibrium.",
+          topic: "Market Dynamics"
+        },
+        {
+          front: "What is the difference between Fiscal Policy and Monetary Policy?",
+          back: "Fiscal policy is set by the government via taxation and spending; Monetary policy is set by central banks via interest rates and money supply control.",
+          topic: "Macroeconomics"
+        },
+        {
+          front: "What is Elasticity of Demand?",
+          back: "A measure of how sensitive the quantity demanded of a good is to a change in its price (% change in quantity / % change in price).",
+          topic: "Price Theory"
+        },
+        {
+          front: "What is Comparative Advantage?",
+          back: "The ability of an individual or nation to produce a particular good at a lower opportunity cost than its trading partners.",
+          topic: "International Trade"
+        },
+        {
+          front: "What is Inflation and how is it commonly measured?",
+          back: "A general progressive increase in prices of goods and services over time, commonly measured by the Consumer Price Index (CPI).",
+          topic: "Macroeconomics"
+        },
+        {
+          front: "What is Marginal Utility?",
+          back: "The additional satisfaction or benefit a consumer gains from consuming one extra unit of a good or service.",
+          topic: "Consumer Theory"
+        },
+        {
+          front: "What is the difference between GDP and GNP?",
+          back: "GDP measures output produced within a country's geographic borders; GNP measures output produced by a country's citizens and businesses regardless of location.",
+          topic: "Economic Indicators"
+        },
+        {
+          front: "What is Compound Interest?",
+          back: "Interest calculated on the initial principal and also on the accumulated interest of previous periods: A = P(1 + r/n)^(nt).",
+          topic: "Finance"
+        },
+        {
+          front: "What is Market Liquidity?",
+          back: "The ease and speed with which an asset can be converted into cash without affecting its market price significantly.",
+          topic: "Financial Markets"
+        }
+      ],
+      design: [
+        {
+          front: "What is Jakob's Law of User Experience?",
+          back: "Users spend most of their time on other sites, meaning users prefer your site to work the same way as all the other sites they already know.",
+          topic: "UX Psychology"
+        },
+        {
+          front: "What is Fitts's Law in UI Design?",
+          back: "The time required to rapidly move to a target area is a function of the ratio between the distance to the target and the width of the target.",
+          topic: "Interaction Design"
+        },
+        {
+          front: "What is Hick's Law?",
+          back: "The time it takes to make a decision increases logarithmically with the number and complexity of choices presented.",
+          topic: "Cognitive Load"
+        },
+        {
+          front: "What is Progressive Disclosure?",
+          back: "A design technique that defers advanced or rarely used features to secondary screens to avoid overwhelming users during onboarding.",
+          topic: "Information Architecture"
+        },
+        {
+          front: "What is the difference between a Wireframe and a Prototype?",
+          back: "A wireframe is a low-fidelity static structural layout; a prototype is an interactive model simulating user flows and state transitions.",
+          topic: "Design Process"
+        },
+        {
+          front: "What is Affordance in UX?",
+          back: "Visual and physical clues about how an object should be used (e.g., a 3D button affordance implies it can be pressed).",
+          topic: "Usability"
+        },
+        {
+          front: "What is WCAG color contrast standard for normal body text?",
+          back: "WCAG AA requires a contrast ratio of at least 4.5:1 for normal text (under 18pt) and 3:1 for large text (18pt+ or 14pt bold).",
+          topic: "Accessibility"
+        },
+        {
+          front: "What is a User Persona?",
+          back: "A semi-fictional archetype representing the goals, pain points, behaviors, and demographics of a key user segment.",
+          topic: "Design Research"
+        },
+        {
+          front: "What is Visual Hierarchy?",
+          back: "Arranging UI elements in a way that naturally leads the viewer's eye through the content in order of importance using size, color, and spacing.",
+          topic: "Visual Design"
+        },
+        {
+          front: "What is Miller's Law?",
+          back: "The average person can only keep 7 (plus or minus 2) items in their working memory at one time, emphasizing the need for chunking.",
+          topic: "Psychology"
+        }
+      ]
+    };
+
+    function generateAIQuestions(subjectName, count) {
+      const lower = subjectName.toLowerCase();
+      let pool = [];
+
+      if (lower.includes('prod') || lower.includes('habit') || lower.includes('time') || lower.includes('focus')) {
+        pool = [...AI_PRESET_DECKS.productivity];
+      } else if (lower.includes('js') || lower.includes('javascript') || lower.includes('web') || lower.includes('code') || lower.includes('react') || lower.includes('frontend')) {
+        pool = [...AI_PRESET_DECKS.javascript];
+      } else if (lower.includes('bio') || lower.includes('dna') || lower.includes('cell') || lower.includes('med') || lower.includes('gene')) {
+        pool = [...AI_PRESET_DECKS.biology];
+      } else if (lower.includes('math') || lower.includes('calc') || lower.includes('algebra') || lower.includes('geom') || lower.includes('stat')) {
+        pool = [...AI_PRESET_DECKS.math];
+      } else if (lower.includes('hist') || lower.includes('war') || lower.includes('rome') || lower.includes('empire') || lower.includes('century')) {
+        pool = [...AI_PRESET_DECKS.history];
+      } else if (lower.includes('ai') || lower.includes('ml') || lower.includes('machine') || lower.includes('neural') || lower.includes('learning')) {
+        pool = [...AI_PRESET_DECKS.ai];
+      } else if (lower.includes('econ') || lower.includes('finance') || lower.includes('money') || lower.includes('market') || lower.includes('trade')) {
+        pool = [...AI_PRESET_DECKS.economics];
+      } else if (lower.includes('design') || lower.includes('ux') || lower.includes('ui') || lower.includes('product')) {
+        pool = [...AI_PRESET_DECKS.design];
+      }
+
+      // If preset pool matched
+      if (pool.length > 0) {
+        shuffleArray(pool);
+        const results = [];
+        for (let i = 0; i < count; i++) {
+          results.push(pool[i % pool.length]);
+        }
+        return results;
+      }
+
+      // Dynamic AI question generator for ANY custom user subject or project!
+      const capitalizedTopic = subjectName.trim().charAt(0).toUpperCase() + subjectName.trim().slice(1);
+      const dynamicTemplates = [
+        {
+          front: `What is the core definition and primary objective of ${capitalizedTopic}?`,
+          back: `${capitalizedTopic} is a key domain focused on foundational principles, achieving targeted outcomes, and solving critical challenges through systematic understanding.`,
+          topic: `${capitalizedTopic} • Fundamentals`
+        },
+        {
+          front: `What is the most critical principle or rule to follow when working with ${capitalizedTopic}?`,
+          back: `Maintaining consistent methodology, isolating core variables, and systematically validating every step before scaling execution.`,
+          topic: `${capitalizedTopic} • Principles`
+        },
+        {
+          front: `What are the most common pitfalls or misconceptions in ${capitalizedTopic}?`,
+          back: `Treating surface symptoms instead of root causes, skipping foundational prerequisites, and neglecting iterative testing and feedback loops.`,
+          topic: `${capitalizedTopic} • Best Practices`
+        },
+        {
+          front: `How do you measure success and evaluate progress in ${capitalizedTopic}?`,
+          back: `By tracking key performance indicators (KPIs), measuring error rates, assessing retention/throughput, and comparing against baseline benchmarks.`,
+          topic: `${capitalizedTopic} • Evaluation`
+        },
+        {
+          front: `What is a real-world case study or practical application of ${capitalizedTopic}?`,
+          back: `Applying structured workflows and evidence-based techniques to real-world projects to increase efficiency, reduce bottlenecks, and achieve repeatable results.`,
+          topic: `${capitalizedTopic} • Application`
+        },
+        {
+          front: `What trade-offs must be evaluated when implementing solutions in ${capitalizedTopic}?`,
+          back: `Balancing speed of execution versus precision/depth, resource allocation versus long-term sustainability, and simplicity versus flexibility.`,
+          topic: `${capitalizedTopic} • Strategy`
+        },
+        {
+          front: `How does active recall and deliberate practice accelerate mastery in ${capitalizedTopic}?`,
+          back: `It forces retrieval of key mechanisms from memory, actively exposing blind spots and cementing high-leverage mental models.`,
+          topic: `${capitalizedTopic} • Mastery`
+        },
+        {
+          front: `What is the next evolutionary step or modern breakthrough in ${capitalizedTopic}?`,
+          back: `Integration of automated workflows, intelligent tools, and cross-disciplinary insights to dramatically improve speed and impact.`,
+          topic: `${capitalizedTopic} • Innovation`
+        },
+        {
+          front: `How do you troubleshoot complex unexpected failures when executing ${capitalizedTopic}?`,
+          back: `Deconstruct the problem into first principles, verify assumptions sequentially from input to output, and test boundary edge cases.`,
+          topic: `${capitalizedTopic} • Problem Solving`
+        },
+        {
+          front: `What key takeaway should every practitioner of ${capitalizedTopic} master early on?`,
+          back: `Focus on mastering the high-leverage 20% of core concepts that drive 80% of real-world results before diving into minor edge cases.`,
+          topic: `${capitalizedTopic} • Summary`
+        },
+        {
+          front: `What role does documentation and journaling play in ${capitalizedTopic}?`,
+          back: `Documenting insights, lessons learned, and failure modes prevents repeating costly mistakes and builds institutional knowledge.`,
+          topic: `${capitalizedTopic} • Documentation`
+        },
+        {
+          front: `How does continuous iteration improve quality in ${capitalizedTopic}?`,
+          back: `Small, compounding daily iterations beat sporadic massive efforts, leading to high skill resilience over time.`,
+          topic: `${capitalizedTopic} • Growth`
+        },
+        {
+          front: `What framework is best suited for organizing knowledge in ${capitalizedTopic}?`,
+          back: `Hierarchical categorization from macro themes down to specific actionable techniques, combined with periodic flashcard reviews.`,
+          topic: `${capitalizedTopic} • Organization`
+        },
+        {
+          front: `What is the distinction between theory and practical execution in ${capitalizedTopic}?`,
+          back: `Theory provides the mental model; practical execution exposes unforeseen constraints, environmental variance, and real-world edge cases.`,
+          topic: `${capitalizedTopic} • Execution`
+        },
+        {
+          front: `What is the ultimate goal of achieving excellence in ${capitalizedTopic}?`,
+          back: `To build effortless intuition, high execution speed, and the ability to mentor and guide others in the domain.`,
+          topic: `${capitalizedTopic} • Vision`
+        }
+      ];
+
+      shuffleArray(dynamicTemplates);
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        results.push(dynamicTemplates[i % dynamicTemplates.length]);
+      }
+      return results;
+    }
+
+    function initFlashcards() {
+      // Elements in Setup View
+      const subjectInput = document.getElementById('ai-subject-input');
+      const suggestionChips = document.querySelectorAll('#ai-subject-suggestions .suggestion-chip');
+      const countPills = document.querySelectorAll('#count-selector-pills .config-pill-btn');
+      const timerPills = document.querySelectorAll('#timer-selector-pills .config-pill-btn');
+      const lblCount = document.getElementById('lbl-question-count');
+      const lblTimer = document.getElementById('lbl-timer-per-question');
+      const btnStartQuiz = document.getElementById('btn-start-ai-quiz');
+      const generatingLoader = document.getElementById('ai-generating-loader');
+
+      // Elements in Session View
+      const cardEl = document.getElementById('active-flashcard');
+      const btnReview = document.getElementById('btn-card-review');
+      const btnMastered = document.getElementById('btn-card-mastered');
+      const btnShuffle = document.getElementById('btn-shuffle-cards');
+      const btnRestart = document.getElementById('btn-restart-deck');
+      const btnChangeSubject = document.getElementById('btn-change-subject');
+      const btnPauseTimer = document.getElementById('btn-pause-question-timer');
+
+      // Elements in Results View
+      const btnRetryDeck = document.getElementById('btn-results-retry');
+      const btnNewSubject = document.getElementById('btn-results-new-subject');
+      const btnToJournal = document.getElementById('btn-results-to-journal');
+
+      // 1. Suggestion Chips Click
+      suggestionChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          subjectInput.value = chip.dataset.topic;
+          AppState.aiSubject = chip.dataset.topic;
+          audio.playClick();
+        });
+      });
+
+      // 2. Question Count Pills Click
+      countPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          countPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const count = parseInt(pill.dataset.count, 10);
+          AppState.aiQuestionCount = count;
+          if (lblCount) lblCount.textContent = `${count} Questions`;
+          audio.playClick();
+        });
+      });
+
+      // 3. Timer per Question Pills Click
+      timerPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          timerPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const time = parseInt(pill.dataset.time, 10);
+          AppState.aiTimerPerQuestion = time;
+          if (lblTimer) {
+            lblTimer.textContent = time === 0 ? 'No Limit (∞)' : `${time} Seconds`;
+          }
+          audio.playClick();
+        });
+      });
+
+      // 4. Start AI Quiz Click
+      btnStartQuiz.addEventListener('click', () => {
+        const customText = subjectInput.value.trim();
+        const subject = customText || AppState.aiSubject || '🧠 Productivity & Habits';
+        AppState.aiSubject = subject;
+
+        audio.playClick();
+
+        // Show generating loading animation
+        if (generatingLoader) {
+          generatingLoader.classList.add('active');
+          const statusText = document.getElementById('ai-loading-status-text');
+          if (statusText) statusText.textContent = `Analyzing "${subject}"...`;
+        }
+        btnStartQuiz.disabled = true;
+        btnStartQuiz.style.opacity = '0.7';
+
+        setTimeout(() => {
+          if (generatingLoader) generatingLoader.classList.remove('active');
+          btnStartQuiz.disabled = false;
+          btnStartQuiz.style.opacity = '1';
+
+          // Synthesize AI questions
+          const generatedCards = generateAIQuestions(subject, AppState.aiQuestionCount);
+          AppState.currentCardsList = generatedCards;
+          AppState.currentCardIndex = 0;
+          AppState.masteredCount = 0;
+          AppState.isFlashcardSessionActive = true;
+
+          // Switch views
+          document.getElementById('flashcard-setup-view').style.display = 'none';
+          document.getElementById('flashcard-results-view').classList.remove('active');
+          document.getElementById('flashcard-session-view').style.display = 'block';
+
+          const topicTitle = document.getElementById('session-topic-title');
+          if (topicTitle) topicTitle.textContent = subject;
+
+          audio.playSuccess();
+          showToast(`✨ Generated ${generatedCards.length} flashcards with Somni for ${subject}!`, '✨');
+          renderActiveCard();
+        }, 400);
+      });
+
+      // 5. Card Flip Interactivity
+      cardEl.addEventListener('click', () => {
+        audio.playClick();
+        cardEl.classList.toggle('is-flipped');
+      });
+
+      // 6. Pause / Resume Question Timer
+      if (btnPauseTimer) {
+        btnPauseTimer.addEventListener('click', () => {
+          audio.playClick();
+          AppState.isQuestionTimerPaused = !AppState.isQuestionTimerPaused;
+          btnPauseTimer.textContent = AppState.isQuestionTimerPaused ? '▶' : '⏸';
+          if (AppState.isQuestionTimerPaused) {
+            showToast('Question timer paused', '⏸️');
+          } else {
+            showToast('Timer resumed', '▶️');
+          }
+        });
+      }
+
+      // 7. Grade Actions
+      btnReview.addEventListener('click', () => {
+        audio.playClick();
+        nextCard(false);
+      });
+
+      btnMastered.addEventListener('click', () => {
+        audio.playSuccess();
+        nextCard(true);
+      });
+
+      // 8. Secondary Actions
+      btnShuffle.addEventListener('click', () => {
+        audio.playClick();
+        shuffleArray(AppState.currentCardsList);
+        AppState.currentCardIndex = 0;
+        AppState.masteredCount = 0;
+        renderActiveCard();
+        showToast('Deck shuffled!', '🔀');
+      });
+
+      btnRestart.addEventListener('click', () => {
+        audio.playClick();
+        AppState.currentCardIndex = 0;
+        AppState.masteredCount = 0;
+        renderActiveCard();
+        showToast('Deck restarted!', '🔄');
+      });
+
+      btnChangeSubject.addEventListener('click', () => {
+        audio.playClick();
+        resetToSubjectAdder();
+      });
+
+      // 9. Results Actions
+      btnRetryDeck.addEventListener('click', () => {
+        audio.playClick();
+        AppState.currentCardIndex = 0;
+        AppState.masteredCount = 0;
+        document.getElementById('flashcard-results-view').classList.remove('active');
+        document.getElementById('flashcard-session-view').style.display = 'block';
+        renderActiveCard();
+      });
+
+      btnNewSubject.addEventListener('click', () => {
+        audio.playClick();
+        resetToSubjectAdder();
+      });
+
+      btnToJournal.addEventListener('click', () => {
+        audio.playClick();
+        const tabJournal = document.getElementById('tab-my-journal');
+        if (tabJournal) tabJournal.click();
+        setTimeout(() => {
+          const textarea = document.getElementById('journal-input');
+          if (textarea) {
+            textarea.value = `Studied subject: ${AppState.aiSubject}. Mastered ${AppState.masteredCount}/${AppState.currentCardsList.length} flashcards. Key takeaways: `;
+            textarea.focus();
+          }
+        }, 300);
+      });
+    }
+
+    function resetToSubjectAdder() {
+      clearInterval(AppState.questionTimerInterval);
+      AppState.isFlashcardSessionActive = false;
+      document.getElementById('flashcard-session-view').style.display = 'none';
+      document.getElementById('flashcard-results-view').classList.remove('active');
+      document.getElementById('flashcard-setup-view').style.display = 'block';
+    }
+
+    function startQuestionTimer() {
+      clearInterval(AppState.questionTimerInterval);
+      const timerContainer = document.getElementById('question-timer-container');
+      const timerText = document.getElementById('question-timer-text');
+      const timerBar = document.getElementById('question-timer-bar');
+      const timerBadge = document.getElementById('question-timer-badge');
+      const pauseBtn = document.getElementById('btn-pause-question-timer');
+
+      if (!timerContainer) return;
+
+      const totalTime = AppState.aiTimerPerQuestion;
+
+      // If No Limit (0 seconds)
+      if (totalTime === 0) {
+        if (timerText) timerText.textContent = '∞ No Limit';
+        if (timerBar) timerBar.style.width = '100%';
+        if (timerBadge) {
+          timerBadge.className = 'timer-badge-pill';
+        }
+        if (pauseBtn) pauseBtn.style.display = 'none';
+        return;
+      }
+
+      if (pauseBtn) {
+        pauseBtn.style.display = 'flex';
+        pauseBtn.textContent = '⏸';
+      }
+
+      AppState.questionTimeRemaining = totalTime;
+      AppState.isQuestionTimerPaused = false;
+      updateQuestionTimerUI(totalTime, totalTime);
+
+      AppState.questionTimerInterval = setInterval(() => {
+        if (!AppState.isQuestionTimerPaused) {
+          AppState.questionTimeRemaining--;
+          updateQuestionTimerUI(AppState.questionTimeRemaining, totalTime);
+
+          if (AppState.questionTimeRemaining <= 0) {
+            clearInterval(AppState.questionTimerInterval);
+            handleQuestionTimeout();
+          }
+        }
+      }, 1000);
+    }
+
+    function updateQuestionTimerUI(remaining, total) {
+      const timerText = document.getElementById('question-timer-text');
+      const timerBar = document.getElementById('question-timer-bar');
+      const timerBadge = document.getElementById('question-timer-badge');
+
+      if (timerText) timerText.textContent = `${remaining}s`;
+      
+      const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+      if (timerBar) {
+        timerBar.style.width = `${pct}%`;
+        if (remaining <= 4) {
+          timerBar.classList.add('danger');
+        } else {
+          timerBar.classList.remove('danger');
+        }
+      }
+
+      if (timerBadge) {
+        timerBadge.className = 'timer-badge-pill';
+        if (remaining <= 3) {
+          timerBadge.classList.add('danger');
+        } else if (remaining <= 6) {
+          timerBadge.classList.add('warning');
+        }
+      }
+    }
+
+    function handleQuestionTimeout() {
+      // Sound alarm beep
+      audio.playAlarmBeep();
+      const cardEl = document.getElementById('active-flashcard');
+      if (cardEl && !cardEl.classList.contains('is-flipped')) {
+        cardEl.classList.add('is-flipped');
+      }
+      showToast("⏰ Time's up for this question!", '⏱️');
+    }
+
+    function nextCard(isMastered) {
+      clearInterval(AppState.questionTimerInterval);
+      const cardEl = document.getElementById('active-flashcard');
+      if (cardEl) cardEl.classList.remove('is-flipped');
+
+      if (isMastered) {
+        AppState.masteredCount++;
+      }
+
+      setTimeout(() => {
+        if (AppState.currentCardIndex < AppState.currentCardsList.length - 1) {
+          AppState.currentCardIndex++;
+          renderActiveCard();
+        } else {
+          // Finished all questions in deck
+          showQuizCompletion();
+        }
+      }, 180);
+    }
+
+    function renderActiveCard() {
+      const card = AppState.currentCardsList[AppState.currentCardIndex];
+      if (!card) return;
+
+      const cardEl = document.getElementById('active-flashcard');
+      if (cardEl) cardEl.classList.remove('is-flipped');
+
+      const total = AppState.currentCardsList.length;
+      const currentNum = AppState.currentCardIndex + 1;
+
+      // Update Texts
+      const frontTag = document.getElementById('card-front-tag');
+      const frontText = document.getElementById('card-front-text');
+      const backTag = document.getElementById('card-back-tag');
+      const backText = document.getElementById('card-back-text');
+
+      if (frontTag) frontTag.textContent = card.topic || 'Question';
+      if (frontText) frontText.textContent = card.front;
+      if (backTag) backTag.textContent = `${card.topic || 'Question'} • Explanation`;
+      if (backText) backText.textContent = card.back;
+
+      // Update Counters & Progress Bar
+      const counterText = document.getElementById('flashcard-counter-text');
+      const masteryText = document.getElementById('flashcard-mastery-text');
+      const fillBar = document.getElementById('flashcard-progress-bar');
+
+      if (counterText) counterText.textContent = `Card ${currentNum} of ${total}`;
+      const masteryPct = total > 0 ? Math.round((AppState.masteredCount / total) * 100) : 0;
+      if (masteryText) masteryText.textContent = `Mastery: ${masteryPct}%`;
+      
+      if (fillBar) {
+        fillBar.style.width = `${(currentNum / total) * 100}%`;
+      }
+
+      // Start per-question timer
+      startQuestionTimer();
+    }
+
+    function showQuizCompletion() {
+      clearInterval(AppState.questionTimerInterval);
+      const total = AppState.currentCardsList.length;
+      const mastered = AppState.masteredCount;
+      const pct = Math.round((mastered / total) * 100);
+
+      document.getElementById('flashcard-session-view').style.display = 'none';
+      const resultsView = document.getElementById('flashcard-results-view');
+      if (resultsView) {
+        resultsView.classList.add('active');
+        const scoreText = document.getElementById('quiz-results-score-text');
+        if (scoreText) {
+          scoreText.textContent = `You mastered ${mastered} out of ${total} cards (${pct}%) on ${AppState.aiSubject}!`;
+        }
+      }
+
+      audio.playSuccess();
+      showToast(`🏆 Quiz Finished! (${pct}% Mastered)`, '🎉');
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    /* -------------------------------------------------------------
+       TAB 4: MY JOURNAL LOGIC
+       ------------------------------------------------------------- */
+    const DAILY_QUOTES = [
+      { quote: "Small daily improvements over time lead to stunning results.", author: "Robin Sharma" },
+      { quote: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+      { quote: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+      { quote: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+      { quote: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+      { quote: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+      { quote: "Focus is a muscle. The more you practice it, the stronger it becomes.", author: "Cal Newport" },
+      { quote: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+      { quote: "Study hard what interests you the most in the most original manner possible.", author: "Richard Feynman" },
+      { quote: "The mind is not a vessel to be filled, but a fire to be kindled.", author: "Plutarch" },
+      { quote: "Curiosity is the wick in the candle of learning.", author: "William Arthur Ward" },
+      { quote: "Knowledge has a beginning but no end.", author: "Geeta Iyengar" }
+    ];
+
+    function initJournal() {
+      const form = document.getElementById('journal-form');
+      const textarea = document.getElementById('journal-input');
+      const subjectPills = document.querySelectorAll('.subject-pill');
+      const customSubjectInput = document.getElementById('subject-custom-input');
+
+      AppState.selectedSubject = '💻 Computer Science';
+
+      // 1. Render 24-Hour Rotating Daily Quote
+      renderDailyQuote();
+
+      // 2. Automatically display today's date in form
+      renderJournalDate();
+
+      // 3. Subject selection pills
+      subjectPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          subjectPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const subj = pill.dataset.subject;
+          
+          if (subj === '✨ Custom') {
+            customSubjectInput.style.display = 'block';
+            customSubjectInput.focus();
+            AppState.selectedSubject = customSubjectInput.value.trim() || 'Custom';
+          } else {
+            customSubjectInput.style.display = 'none';
+            AppState.selectedSubject = subj;
+          }
+          audio.playClick();
+        });
+      });
+
+      if (customSubjectInput) {
+        customSubjectInput.addEventListener('input', (e) => {
+          AppState.selectedSubject = e.target.value.trim() || 'Custom';
+        });
+      }
+
+      // 4. Save Today's Note Action
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = textarea.value.trim();
+        if (!text) return;
+
+        let finalSubject = AppState.selectedSubject;
+        if (finalSubject === '✨ Custom' || finalSubject === 'Custom') {
+          finalSubject = customSubjectInput.value.trim() || 'General Learning';
+        }
+
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        const newEntry = {
+          id: Date.now().toString(),
+          timestamp: Date.now(),
+          subject: finalSubject,
+          text: text,
+          date: formattedDate,
+          time: formattedTime
+        };
+
+        AppState.journalEntries.unshift(newEntry);
+        saveJournal();
+        renderJournalEntries();
+        textarea.value = '';
+        audio.playSuccess();
+        showToast("Today's note saved to history!", '📔');
+      });
+
+      renderJournalEntries();
+    }
+
+    function renderDailyQuote() {
+      const quoteEl = document.getElementById('journal-quote-display');
+      const authorEl = document.getElementById('journal-quote-author');
+      if (!quoteEl) return;
+
+      // 24-hour deterministic selection formula
+      const now = new Date();
+      const daySeed = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+      const quoteIndex = daySeed % DAILY_QUOTES.length;
+      const currentQuote = DAILY_QUOTES[quoteIndex];
+
+      quoteEl.textContent = `"${currentQuote.quote}"`;
+      if (authorEl) {
+        authorEl.textContent = `— ${currentQuote.author}`;
+      }
+    }
+
+    function renderJournalDate() {
+      const dateEl = document.getElementById('journal-auto-date');
+      if (dateEl) {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        dateEl.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          ${now.toLocaleDateString('en-US', options)}
+        `;
+      }
+    }
+
+    function renderJournalEntries() {
+      const container = document.getElementById('journal-entries-list');
+      const countBadge = document.getElementById('journal-count-badge');
+      if (!container) return;
+
+      // Sort entries by most recent timestamp/date
+      const sortedEntries = [...AppState.journalEntries].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      if (countBadge) {
+        countBadge.textContent = `${sortedEntries.length} ${sortedEntries.length === 1 ? 'note' : 'notes'}`;
+      }
+
+      if (sortedEntries.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <p>No note history yet. Save your first study evaluation above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = sortedEntries.map(entry => `
+        <div class="journal-entry-card" data-id="${entry.id}">
+          <div class="entry-header">
+            <div class="entry-meta-left">
+              <span class="entry-subject-badge">${escapeHTML(entry.subject || 'General Study')}</span>
+              <span class="entry-date-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                ${entry.date || 'Today'} ${entry.time ? '• ' + entry.time : ''}
+              </span>
+            </div>
+            <button class="btn-delete-entry" onclick="deleteJournalEntry('${entry.id}')" title="Delete Note" aria-label="Delete Note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="entry-notes-text">${escapeHTML(entry.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    function deleteJournalEntry(id) {
+      AppState.journalEntries = AppState.journalEntries.filter(j => j.id !== id);
+      saveJournal();
+      renderJournalEntries();
+      audio.playClick();
+      showToast('Note deleted from history', '🗑️');
+    }
+
+    /* -------------------------------------------------------------
+       AUDIO & SOUND TOGGLE
+       ------------------------------------------------------------- */
+    function initSoundControls() {
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      if (!soundBtn) return;
+
+      soundBtn.addEventListener('click', () => {
+        audio.soundEnabled = !audio.soundEnabled;
+        if (!audio.soundEnabled) {
+          audio.stopAmbient();
+          soundBtn.style.opacity = '0.5';
+          showToast('Sound Muted 🔇');
+        } else {
+          audio.playSuccess();
+          soundBtn.style.opacity = '1';
+          showToast('Sound Enabled 🔊');
+        }
+      });
+    }
+
+    /* -------------------------------------------------------------
+       UTILITIES
+       ------------------------------------------------------------- */
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
